@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Частые вопросы - AnimalShelter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-warning fs-4" href="index.html">
+            <i class="bi bi-heart-pulse-fill text-success me-2"></i>AnimalShelter
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="all-pets.html">Питомцы</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">О нас</a></li>
+                <li class="nav-item"><a class="nav-link" href="help-us.html">Помочь</a></li>
+                <li class="nav-item"><a class="nav-link" href="contacts.html">Контакты</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="bg-light py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Главная</a></li>
+                <li class="breadcrumb-item active">Частые вопросы</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="bg-info py-5">
+    <div class="container py-4 text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Частые вопросы</h1>
+        <p class="lead opacity-75">Ответы на самые популярные вопросы о приюте и усыновлении</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Category: Adoption -->
+                <h4 class="fw-bold mb-4 text-warning">
+                    <i class="bi bi-house-heart me-2"></i>Усыновление
+                </h4>
+                <div class="accordion mb-5" id="adoptionFaq">
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+                                Как забрать питомца из приюта?
+                            </button>
+                        </h2>
+                        <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#adoptionFaq">
+                            <div class="accordion-body text-muted">
+                                <ol>
+                                    <li>Выберите питомца на сайте или приезжайте в приют</li>
+                                    <li>Познакомьтесь с животным лично</li>
+                                    <li>Заполните анкету будущего владельца</li>
+                                    <li>Подпишите договор ответственного содержания</li>
+                                    <li>Заберите питомца домой!</li>
+                                </ol>
+                                Весь процесс обычно занимает 1-3 дня.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+                                Какие документы нужны?
+                            </button>
+                        </h2>
+                        <div id="a2" class="accordion-collapse collapse" data-bs-parent="#adoptionFaq">
+                            <div class="accordion-body text-muted">
+                                Только паспорт гражданина РФ. Мы также попросим заполнить анкету с вопросами
+                                об условиях содержания и вашем опыте с животными.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+                                Усыновление платное?
+                            </button>
+                        </h2>
+                        <div id="a3" class="accordion-collapse collapse" data-bs-parent="#adoptionFaq">
+                            <div class="accordion-body text-muted">
+                                Нет, мы не продаём животных. Все наши питомцы отдаются бесплатно.
+                                Добровольные пожертвования приветствуются, но не обязательны.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a4">
+                                Можно ли вернуть питомца?
+                            </button>
+                        </h2>
+                        <div id="a4" class="accordion-collapse collapse" data-bs-parent="#adoptionFaq">
+                            <div class="accordion-body text-muted">
+                                Да, если по каким-то причинам вы не можете оставить питомца, обязательно
+                                верните его нам. Не оставляйте животное на улице и не отдавайте незнакомым людям.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category: Visit -->
+                <h4 class="fw-bold mb-4 text-success">
+                    <i class="bi bi-geo-alt me-2"></i>Посещение приюта
+                </h4>
+                <div class="accordion mb-5" id="visitFaq">
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#v1">
+                                Как записаться на посещение?
+                            </button>
+                        </h2>
+                        <div id="v1" class="accordion-collapse collapse" data-bs-parent="#visitFaq">
+                            <div class="accordion-body text-muted">
+                                Позвоните по телефону +7 (999) 123-45-67 или напишите нам через форму на сайте.
+                                Мы работаем ежедневно с 10:00 до 18:00.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#v2">
+                                Можно приехать с детьми?
+                            </button>
+                        </h2>
+                        <div id="v2" class="accordion-collapse collapse" data-bs-parent="#visitFaq">
+                            <div class="accordion-body text-muted">
+                                Да, мы рады детям! Однако просим присматривать за ними и следовать
+                                инструкциям наших сотрудников при общении с животными.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category: Help -->
+                <h4 class="fw-bold mb-4 text-danger">
+                    <i class="bi bi-heart me-2"></i>Помощь приюту
+                </h4>
+                <div class="accordion mb-5" id="helpFaq">
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h1">
+                                Как стать волонтёром?
+                            </button>
+                        </h2>
+                        <div id="h1" class="accordion-collapse collapse" data-bs-parent="#helpFaq">
+                            <div class="accordion-body text-muted">
+                                Заполните форму на странице «Контакты» или позвоните нам. Мы расскажем о
+                                графике, обязанностях и проведём вводный инструктаж.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h2">
+                                Что можно привезти в приют?
+                            </button>
+                        </h2>
+                        <div id="h2" class="accordion-collapse collapse" data-bs-parent="#helpFaq">
+                            <div class="accordion-body text-muted">
+                                Корм (сухой и влажный), наполнитель, миски, поводки, лежанки, игрушки,
+                                пелёнки, лекарства. Актуальный список нужд смотрите на странице «Помочь».
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#h3">
+                                Как отслеживать расход пожертвований?
+                            </button>
+                        </h2>
+                        <div id="h3" class="accordion-collapse collapse" data-bs-parent="#helpFaq">
+                            <div class="accordion-body text-muted">
+                                Мы ежемесячно публикуем финансовые отчёты на сайте и в наших социальных сетях.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Didn't find answer -->
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-3">Не нашли ответ на свой вопрос?</h5>
+                        <p class="text-muted mb-3">Свяжитесь с нами, и мы с радостью поможем!</p>
+                        <a href="contact.html" class="btn btn-warning text-white rounded-pill px-4">
+                            <i class="bi bi-chat-dots me-2"></i>Задать вопрос
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="bi bi-heart-pulse-fill text-success me-2"></i>AnimalShelter
+                </h4>
+                <p class="text-white-50 mb-4">
+                    Мы верим, что каждое животное заслуживает любви и заботы.
+                    Присоединяйтесь к нам в миссии дарить счастье нашим четвероногим друзьям.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-telegram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-youtube"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Навигация</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="index.html" class="text-white-50 text-decoration-none">Главная</a></li>
+                    <li class="mb-2"><a href="all-pets.html" class="text-white-50 text-decoration-none">Питомцы</a></li>
+                    <li class="mb-2"><a href="about.html" class="text-white-50 text-decoration-none">О нас</a></li>
+                    <li class="mb-2"><a href="help-us.html" class="text-white-50 text-decoration-none">Помочь</a></li>
+                    <li class="mb-2"><a href="contacts.html" class="text-white-50 text-decoration-none">Контакты</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Полезные ссылки</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="questions.html" class="text-white-50 text-decoration-none">FAQ</a></li>
+                    <li class="mb-2"><a href="stories.html" class="text-white-50 text-decoration-none">Истории успеха</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Поддержка</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="not-found.html" class="text-white-50 text-decoration-none">Реквизиты для помощи</a></li>
+                    <li class="mb-2"><a href="reports.html" class="text-white-50 text-decoration-none">Отчёты</a></li>
+                    <li class="mb-2"><a href="not-found.html" class="text-white-50 text-decoration-none">Партнёры</a></li>
+                    <li class="mb-2"><a href="not-found.html" class="text-white-50 text-decoration-none">Благодарности</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="my-4 border-secondary">
+
+        <div class="text-center text-white-50">
+            <p class="mb-0">2025 Приют «AnimalShelter». Все права защищены.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

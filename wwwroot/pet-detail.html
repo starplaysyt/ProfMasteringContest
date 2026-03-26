@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Олег - AnimalShelter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-warning fs-4" href="index.html">
+            <i class="bi bi-heart-pulse-fill text-success me-2"></i>AnimalShelter
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                <li class="nav-item"><a class="nav-link active" href="all-pets.html">Питомцы</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">О нас</a></li>
+                <li class="nav-item"><a class="nav-link" href="help-us.html">Помочь</a></li>
+                <li class="nav-item"><a class="nav-link" href="contacts.html">Контакты</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Breadcrumb -->
+<section class="bg-light py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Главная</a></li>
+                <li class="breadcrumb-item"><a href="pets.html" class="text-decoration-none">Питомцы</a></li>
+                <li class="breadcrumb-item active">Олег</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Pet Detail -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Gallery -->
+            <div class="col-lg-6">
+                <div class="position-relative mb-3">
+                    <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800"
+                         class="img-fluid rounded-4 w-100" alt="Олег" style="height: 400px; object-fit: cover;">
+                    <span class="badge bg-success position-absolute top-0 start-0 m-3 fs-6">
+                        <i class="bi bi-check-circle me-1"></i>Доступен для усыновления
+                    </span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-3">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200"
+                             class="img-fluid rounded-3 cursor-pointer" alt="" style="height: 80px; object-fit: cover; width: 100%;">
+                    </div>
+                    <div class="col-3">
+                        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=200"
+                             class="img-fluid rounded-3 opacity-75" alt="" style="height: 80px; object-fit: cover; width: 100%;">
+                    </div>
+                    <div class="col-3">
+                        <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=200"
+                             class="img-fluid rounded-3 opacity-75" alt="" style="height: 80px; object-fit: cover; width: 100%;">
+                    </div>
+                    <div class="col-3">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200"
+                             class="img-fluid rounded-3 opacity-75" alt="" style="height: 80px; object-fit: cover; width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <h1 class="display-5 fw-bold mb-0">Олег</h1>
+                    <span class="badge bg-warning fs-6">Собака</span>
+                </div>
+
+                <p class="lead text-muted mb-4">
+                    Олег — невероятно дружелюбный и жизнерадостный пёс! Он обожает играть,
+                    гулять и просто быть рядом с людьми. Станет отличным другом для активной семьи.
+                </p>
+
+                <!-- Quick Info -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="bg-light rounded-3 p-3 text-center">
+                            <i class="bi bi-calendar3 text-warning fs-4"></i>
+                            <p class="mb-0 mt-2 small text-muted">Возраст</p>
+                            <strong>3 года</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-light rounded-3 p-3 text-center">
+                            <i class="bi bi-gender-male text-primary fs-4"></i>
+                            <p class="mb-0 mt-2 small text-muted">Пол</p>
+                            <strong>Мальчик</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-light rounded-3 p-3 text-center">
+                            <i class="bi bi-rulers text-success fs-4"></i>
+                            <p class="mb-0 mt-2 small text-muted">Размер</p>
+                            <strong>Средний</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-light rounded-3 p-3 text-center">
+                            <i class="bi bi-palette text-danger fs-4"></i>
+                            <p class="mb-0 mt-2 small text-muted">Окрас</p>
+                            <strong>Рыжий</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Traits -->
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3">Характер</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success-subtle text-success px-3 py-2">Дружелюбный</span>
+                        <span class="badge bg-warning-subtle text-warning px-3 py-2">Игривый</span>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2">Активный</span>
+                        <span class="badge bg-info-subtle text-info px-3 py-2">Ладит с детьми</span>
+                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2">Обучен командам</span>
+                    </div>
+                </div>
+
+                <!-- Health -->
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3">Здоровье</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Вакцинирован</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Стерилизован</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Чипирован</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Обработан от паразитов</li>
+                    </ul>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#adoption-form" class="btn btn-warning btn-lg text-white rounded-pill px-4">
+                        <i class="bi bi-heart-fill me-2"></i>Забрать домой
+                    </a>
+                    <a href="#" class="btn btn-outline-success btn-lg rounded-pill px-4">
+                        <i class="bi bi-telephone me-2"></i>Позвонить
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg rounded-pill">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Description -->
+        <div class="row mt-5">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">История Олега</h4>
+                        <p>
+                            Олег попал к нам в приют весной 2023 года. Его нашли на окраине города —
+                            истощённого и напуганного. Благодаря заботе наших волонтёров и ветеринаров,
+                            Олег полностью восстановился и превратился в жизнерадостного пса.
+                        </p>
+                        <p>
+                            Сейчас Олег обожает долгие прогулки, игры с мячом и плавание.
+                            Он отлично ладит с другими собаками и обожает детей. Знает базовые команды:
+                            «сидеть», «лежать», «ко мне», «рядом».
+                        </p>
+                        <p class="mb-0">
+                            <strong>Идеальная семья для Олега:</strong> активные люди, которые любят прогулки
+                            и готовы уделять питомцу много внимания. Олег будет счастлив в частном доме
+                            или в квартире с регулярными длительными прогулками.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Что нужно знать</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-house text-warning me-3 fs-5"></i>
+                                <span>Подходит для квартиры и дома</span>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-people text-warning me-3 fs-5"></i>
+                                <span>Хорошо ладит с детьми от 5 лет</span>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-heart text-warning me-3 fs-5"></i>
+                                <span>Дружит с другими собаками</span>
+                            </li>
+                            <li class="d-flex">
+                                <i class="bi bi-clock text-warning me-3 fs-5"></i>
+                                <span>Нужны прогулки 2-3 часа в день</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adoption Form -->
+        <div class="row mt-5" id="adoption-form">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+                    <div class="card-body p-4 p-lg-5">
+                        <h4 class="fw-bold mb-4 text-center">Хотите забрать Олега?</h4>
+                        <p class="text-center text-muted mb-4">
+                            Заполните форму, и мы свяжемся с вами в течение 24 часов
+                        </p>
+                        <form>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Ваше имя *</label>
+                                    <input type="text" class="form-control form-control-lg" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Телефон *</label>
+                                    <input type="tel" class="form-control form-control-lg" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control form-control-lg">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Расскажите о себе</label>
+                                    <textarea class="form-control" rows="3"
+                                              placeholder="Где живёте, есть ли опыт содержания животных, другие питомцы..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="agreeRules" required>
+                                        <label class="form-check-label" for="agreeRules">
+                                            Я ознакомился с <a href="rules.html">правилами усыновления</a>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-warning btn-lg text-white rounded-pill px-5">
+                                        <i class="bi bi-send me-2"></i>Отправить заявку
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Similar Pets -->
+        <div class="mt-5">
+            <h4 class="fw-bold mb-4">Похожие питомцы</h4>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=400"
+                             class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="fw-bold">Антон</h6>
+                            <small class="text-muted">5 лет • Собака</small>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="pet-detail.html" class="btn btn-outline-success btn-sm w-100">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400"
+                             class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="fw-bold">Николай</h6>
+                            <small class="text-muted">4 года • Собака</small>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="pet-detail.html" class="btn btn-outline-success btn-sm w-100">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400"
+                             class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="fw-bold">Бакс</h6>
+                            <small class="text-muted">6 лет • Собака</small>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="pet-detail.html" class="btn btn-outline-success btn-sm w-100">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=400"
+                             class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="fw-bold">Рекс</h6>
+                            <small class="text-muted">2 года • Собака</small>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="pet-detail.html" class="btn btn-outline-success btn-sm w-100">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="bi bi-heart-pulse-fill text-success me-2"></i>AnimalShelter
+                </h4>
+                <p class="text-white-50">Мы верим, что каждое животное заслуживает любви и заботы.</p>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="fw-bold mb-3">Контакты</h6>
+                <ul class="list-unstyled text-white-50">
+                    <li class="mb-2"><i class="bi bi-telephone me-2"></i>+7 (999) 123-45-67</li>
+                    <li class="mb-2"><i class="bi bi-envelope me-2"></i>info@animalshelter.ru</li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="fw-bold mb-3">Мы в соцсетях</h6>
+                <div class="d-flex gap-2">
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-telegram"></i></a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4 border-secondary">
+        <div class="text-center text-white-50">
+            <p class="mb-0">© 2025 AnimalShelter. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
