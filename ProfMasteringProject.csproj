@@ -59,6 +59,10 @@
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
+      <Content Update="Storage\uploads\Images\1.jpeg">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -75,7 +79,6 @@
     <ItemGroup>
       <Folder Include="Endpoints\" />
       <Folder Include="Schemes\" />
-      <Folder Include="Storage\uploads\Images\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -91,7 +94,6 @@
 
     <ItemGroup>
       <Folder Include="Endpoints\" />
-      <Folder Include="Images\" />
       <Folder Include="Schemes\" />
     </ItemGroup>
 

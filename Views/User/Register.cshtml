@@ -1,203 +1,319 @@
 @{
     ViewData["Title"] = "Регистрация";
 }
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h2 class="card-title text-center mb-4">Регистрация</h2>
 
-                <form id="registrationForm" enctype="multipart/form-data" 
-                      asp-controller="User" asp-action="Register" method="post">
-                    @Html.AntiForgeryToken()
-                    
-                    <!-- Аватар -->
-                    <div class="mb-3 text-center">
-                        <label class="form-label">Аватар</label>
-                        <div class="mb-2">
-                            <img id="avatarPreview" src="https://via.placeholder.com/150"
-                                 class="rounded-circle" width="150" height="150" alt="Аватар">
-                        </div>
-                        <input type="file" class="form-control" id="avatarPicture" name="AvatarPicture"
-                               accept="image/*" required>
-                    </div>
+@* @if (Model?.ExceptionLine != null) *@
+@* { *@
+@*     <div class="modal fade" id="errorModal" tabindex="-1"> *@
+@*         <div class="modal-dialog modal-dialog-centered"> *@
+@*             <div class="modal-content border-danger"> *@
+@*                 <div class="modal-header bg-danger text-white"> *@
+@*                     <h5 class="modal-title"> *@
+@*                         <i class="bi bi-exclamation-triangle-fill me-2"></i>Ошибка *@
+@*                     </h5> *@
+@*                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> *@
+@*                 </div> *@
+@*                 <div class="modal-body"> *@
+@*                     <p>@Model.ExceptionLine</p> *@
+@*                 </div> *@
+@*                 <div class="modal-footer"> *@
+@*                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
 
-                    <!-- Имя и Фамилия -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="firstName" class="form-label">
-                                Имя <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control" id="firstName"
-                                   name="FirstName" maxlength="30" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="secondName" class="form-label">
-                                Фамилия <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control" id="secondName"
-                                   name="LastName" maxlength="30" required>
-                        </div>
-                    </div>
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center align-items-center g-5">
 
-                    <!-- Логин -->
-                    <div class="mb-3">
-                        <label for="username" class="form-label">
-                            Имя пользователя <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input type="text" class="form-control" id="username"
-                                   name="Username" maxlength="30" required>
-                        </div>
-                    </div>
+            <!-- Left Side - Image & Info -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="text-center">
+                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=500"
+                         alt="Счастливые собаки" class="img-fluid rounded-4 shadow-lg mb-4">
 
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            Email <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            <input type="email" class="form-control" id="email"
-                                   name="Email" maxlength="30" required>
+                    <h4 class="fw-bold">Станьте частью команды!</h4>
+                    <p class="text-muted mb-4">
+                        Зарегистрируйтесь, чтобы помогать животным, <br>
+                        находить им дом и дарить заботу
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-4">
+                        <div class="text-center">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                <i class="bi bi-people fs-5"></i>
+                            </div>
+                            <p class="small text-muted mb-0">500+<br>волонтёров</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                <i class="bi bi-house-heart fs-5"></i>
+                            </div>
+                            <p class="small text-muted mb-0">300+<br>пристроено</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-info bg-opacity-10 text-info rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                <i class="bi bi-emoji-smile fs-5"></i>
+                            </div>
+                            <p class="small text-muted mb-0">Много<br>радости</p>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Телефон -->
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">
-                            Телефон <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                            <input type="tel" class="form-control" id="phone"
-                                   name="Phone" maxlength="30" placeholder="+7 (___) ___-__-__" required>
+            <!-- Right Side - Registration Form -->
+            <div class="col-lg-6 col-md-10">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-4 p-md-5">
+
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="bi bi-person-plus-fill fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold">Регистрация</h3>
+                            <p class="text-muted">Создайте аккаунт волонтёра</p>
                         </div>
-                    </div>
 
-                    <!-- Пароль -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            Пароль <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                            <input type="password" class="form-control" id="password"
-                                   name="Password" maxlength="30" required>
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                <i class="bi bi-eye"></i>
+                        <form id="registrationForm" enctype="multipart/form-data"
+                              asp-controller="User" asp-action="Register" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Аватар -->
+                            <div class="mb-4 text-center">
+                                <div class="position-relative d-inline-block">
+                                    <img id="avatarPreview" src="assets/1.jpeg"
+                                         class="rounded-circle border border-3 border-warning" 
+                                         width="100" height="100" alt="Аватар"
+                                         style="object-fit: cover;">
+                                    <label for="avatarPicture" 
+                                           class="position-absolute bottom-0 end-0 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center"
+                                           style="width: 32px; height: 32px; cursor: pointer;">
+                                        <i class="bi bi-camera-fill small"></i>
+                                    </label>
+                                </div>
+                                <input type="file" class="d-none" id="avatarPicture" name="AvatarPicture"
+                                       accept="image/*">
+                                <p class="small text-muted mt-2 mb-0">Нажмите на камеру для загрузки фото</p>
+                            </div>
+
+                            <!-- Имя и Фамилия -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label fw-semibold">
+                                        <i class="bi bi-person text-warning me-1"></i>Имя
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg rounded-3" 
+                                           id="firstName" name="FirstName" maxlength="30" 
+                                           placeholder="Введите имя" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="secondName" class="form-label fw-semibold">
+                                        <i class="bi bi-person text-warning me-1"></i>Фамилия
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg rounded-3" 
+                                           id="secondName" name="LastName" maxlength="30" 
+                                           placeholder="Введите фамилию" required>
+                                </div>
+                            </div>
+
+                            <!-- Логин -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label fw-semibold">
+                                    <i class="bi bi-at text-warning me-1"></i>Имя пользователя
+                                </label>
+                                <input type="text" class="form-control form-control-lg rounded-3" 
+                                       id="username" name="Username" maxlength="30" 
+                                       placeholder="Придумайте логин" required>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope text-warning me-1"></i>Email
+                                </label>
+                                <input type="email" class="form-control form-control-lg rounded-3" 
+                                       id="email" name="Email" maxlength="50" 
+                                       placeholder="example@mail.com" required>
+                            </div>
+
+                            <!-- Телефон -->
+                            <div class="mb-3">
+                                <label for="phone" class="form-label fw-semibold">
+                                    <i class="bi bi-telephone text-warning me-1"></i>Телефон
+                                </label>
+                                <input type="tel" class="form-control form-control-lg rounded-3" 
+                                       id="phone" name="Phone" maxlength="20" 
+                                       placeholder="+7 (999) 123-45-67" required>
+                            </div>
+
+                            <!-- Пароль -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-semibold">
+                                    <i class="bi bi-lock text-warning me-1"></i>Пароль
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg rounded-start-3" 
+                                           id="password" name="Password" maxlength="30" 
+                                           placeholder="Минимум 6 символов" required>
+                                    <button class="btn btn-outline-secondary rounded-end-3" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Подтверждение пароля -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label fw-semibold">
+                                    <i class="bi bi-lock-fill text-warning me-1"></i>Подтвердите пароль
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg rounded-start-3" 
+                                           id="confirmPassword" name="confirmPassword" maxlength="30" 
+                                           placeholder="Повторите пароль" required>
+                                    <button class="btn btn-outline-secondary rounded-end-3" type="button" id="toggleConfirmPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordMismatch" class="text-danger small mt-1 d-none">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Пароли не совпадают
+                                </div>
+                            </div>
+
+                            <!-- Соглашение -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agreement" required style="border-color: #ffc107;">
+                                    <label class="form-check-label text-muted" for="agreement">
+                                        Я согласен с <a href="#" class="text-warning text-decoration-none">условиями использования</a>
+                                        и <a href="#" class="text-warning text-decoration-none">политикой конфиденциальности</a>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Кнопка регистрации -->
+                            <button type="submit" class="btn btn-warning btn-lg w-100 text-white rounded-pill mb-3">
+                                <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
                             </button>
+
+                            <!-- Разделитель -->
+                            <div class="d-flex align-items-center my-4">
+                                <hr class="flex-grow-1">
+                                <span class="px-3 text-muted small">или через соцсети</span>
+                                <hr class="flex-grow-1">
+                            </div>
+
+                            <!-- Соцсети -->
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary flex-grow-1 rounded-pill">
+                                    <i class="bi bi-google text-danger me-2"></i>Google
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary flex-grow-1 rounded-pill">
+                                    <i class="bi bi-telegram text-primary me-2"></i>Telegram
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Login Link -->
+                        <div class="text-center mt-4 pt-3 border-top">
+                            <p class="text-muted mb-0">
+                                Уже есть аккаунт?
+                                <a asp-controller="User" asp-action="Login" class="text-warning text-decoration-none fw-semibold">Войти</a>
+                            </p>
                         </div>
-                        <div class="form-text">Минимум 6 символов</div>
-                    </div>
 
-                    <!-- Подтверждение пароля -->
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">
-                            Подтвердите пароль <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" class="form-control" id="confirmPassword"
-                                   name="confirmPassword" maxlength="30" required>
-                        </div>
                     </div>
+                </div>
 
-                    <!-- Соглашение -->
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="agreement" required>
-                        <label class="form-check-label" for="agreement">
-                            Я согласен с <a href="#" class="text-decoration-none">условиями использования</a>
-                        </label>
-                    </div>
+                <!-- Help Text -->
+                <div class="text-center mt-4">
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-shield-check text-success me-1"></i>
+                        Ваши данные надёжно защищены
+                    </p>
+                    <p class="text-muted small">
+                        Возникли проблемы?
+                        <a href="#" class="text-warning text-decoration-none">Напишите нам</a>
+                    </p>
+                </div>
 
-                    <!-- Кнопка отправки -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-person-plus"></i> Зарегистрироваться
-                        </button>
-                    </div>
-
-                    <!-- Ссылка на вход -->
-                    <div class="text-center mt-3">
-                        <span class="text-muted">Уже есть аккаунт?</span>
-                        <a href="/login" class="text-decoration-none">Войти</a>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<script>
-    // Превью аватара
-    document.getElementById('avatarPicture').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('avatarPreview').src = e.target.result;
+@section Scripts {
+    <script>
+        // Показать модальное окно ошибки при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorModal = document.getElementById('errorModal');
+            if (errorModal) {
+                const modal = new bootstrap.Modal(errorModal);
+                modal.show();
             }
-            reader.readAsDataURL(file);
+        });
+
+        // Превью аватара
+        document.getElementById('avatarPicture').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Показать/скрыть пароль
+        function togglePasswordVisibility(buttonId, inputId) {
+            document.getElementById(buttonId).addEventListener('click', function() {
+                const input = document.getElementById(inputId);
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
         }
-    });
 
-    // Показать/скрыть пароль
-    document.getElementById('togglePassword').addEventListener('click', function () {
-        const passwordInput = document.getElementById('password');
-        const icon = this.querySelector('i');
+        togglePasswordVisibility('togglePassword', 'password');
+        togglePasswordVisibility('toggleConfirmPassword', 'confirmPassword');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
+        // Проверка совпадения паролей
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const mismatchWarning = document.getElementById('passwordMismatch');
+
+        function checkPasswords() {
+            if (confirmPassword.value && password.value !== confirmPassword.value) {
+                mismatchWarning.classList.remove('d-none');
+                confirmPassword.classList.add('is-invalid');
+            } else {
+                mismatchWarning.classList.add('d-none');
+                confirmPassword.classList.remove('is-invalid');
+            }
         }
-    });
 
-    // Обработка формы
-    @* document.getElementById('registrationForm').addEventListener('submit', function (e) { *@
-    @*     e.preventDefault(); *@
-    @* *@
-    @*     const password = document.getElementById('password').value; *@
-    @*     const confirmPassword = document.getElementById('confirmPassword').value; *@
-    @* *@
-    @*     // Проверка совпадения паролей *@
-    @*     if (password !== confirmPassword) { *@
-    @*         alert('Пароли не совпадают!'); *@
-    @*         return false; *@
-    @*     } *@
-    @* *@
-    @*     // Проверка длины пароля *@
-    @*     if (password.length < 6) { *@
-    @*         alert('Пароль должен содержать минимум 6 символов!'); *@
-    @*         return false; *@
-    @*     } *@
-    @* *@
-    @*     // Создание FormData *@
-    @*     const formData = new FormData(this); *@
-    @* *@
-    @*     // Здесь отправка данных на сервер *@
-    @*     console.log('Данные формы готовы к отправке'); *@
-    @* *@
-    @*     // Пример отправки (раскомментируйте и настройте URL) *@
-    @*      *@
-    @*     fetch('/register', { *@
-    @*         method: 'POST', *@
-    @*         body: formData *@
-    @*     }) *@
-    @*     .then(response => response.json()) *@
-    @*     .then(data => { *@
-    @*         console.log('Success:', data); *@
-    @*         window.location.href = '/login'; *@
-    @*     }) *@
-    @*     .catch(error => { *@
-    @*         console.error('Error:', error); *@
-    @*         alert('Ошибка регистрации!'); *@
-    @*     }); *@
-    @* }); *@
-</script>
+        password.addEventListener('input', checkPasswords);
+        confirmPassword.addEventListener('input', checkPasswords);
+
+        // Валидация формы
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                mismatchWarning.classList.remove('d-none');
+                confirmPassword.classList.add('is-invalid');
+                confirmPassword.focus();
+            }
+        });
+    </script>
+}

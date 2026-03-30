@@ -4,8 +4,7 @@ namespace ProfMasteringProject.DTO;
 
 public class UserRegistrationDTO
 {
-    [Required(ErrorMessage = "Upload avatar")]
-    public IFormFile AvatarPicture { get; set; }
+    public IFormFile? AvatarPicture { get; set; }
     
     [Required(ErrorMessage = "Username is required")]
     public string FirstName { get; set; }

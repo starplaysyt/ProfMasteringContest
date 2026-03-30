@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using ProfMasteringProject.DTO;
 using ProfMasteringProject.Entities;
 using ProfMasteringProject.Repositories;
@@ -10,7 +9,7 @@ public class UserService(UserEntityRepository userRepository,
 {
     public async Task<int> RegisterUser(UserRegistrationDTO userDto)
     {
-        var filePath = await fileService.SaveFileAsync(userDto.AvatarPicture, "Images");
+        var filePath = userDto.AvatarPicture is null ? "Images/1.jpeg" : await fileService.SaveFileAsync(userDto.AvatarPicture, "Images");
         
         var userEntity = new UserEntity
         {
