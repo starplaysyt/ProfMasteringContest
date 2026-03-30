@@ -60,6 +60,8 @@ public class UserController (UserService service) : Controller
             return View("Login", new LoginPageModel() { ExceptionLine = "Неверный логин или пароль."});
         }
 
+        var roleName = (await service.GetUserRole(user))?.Name;
+
         // 3. Создание Claims (данные пользователя в куке)
         var claims = new List<Claim>
         {
@@ -70,7 +72,7 @@ public class UserController (UserService service) : Controller
             new(ClaimTypes.Surname, user.SecondName),
             new("FullName", $"{user.FirstName} {user.SecondName}"),
             new("AvatarUrl", $"{user.AvatarPicturePath}"),
-            new(ClaimTypes.Role, "Volunteer") // Роль пользователя
+            new(ClaimTypes.Role, roleName ?? "volunteer") // Роль пользователя
         };
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -99,5 +101,14 @@ public class UserController (UserService service) : Controller
         await service.UpdateEntityLoginTime(user, DateTime.UtcNow);
         
         return RedirectToAction("VolunteerPage", "Volunteer");
+    }
+
+    [HttpGet("/logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
+        return RedirectToAction("Login");
     }
 }

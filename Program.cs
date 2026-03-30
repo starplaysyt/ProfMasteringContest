@@ -24,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<PictureEntityRepository>();
 builder.Services.AddScoped<UserEntityRepository>();
+builder.Services.AddScoped<UserRolesRepository>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IFileService, FileService>();

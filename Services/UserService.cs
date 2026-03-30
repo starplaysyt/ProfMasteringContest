@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using ProfMasteringProject.DTO;
 using ProfMasteringProject.Entities;
 using ProfMasteringProject.Repositories;
@@ -5,12 +6,14 @@ using ProfMasteringProject.Repositories;
 namespace ProfMasteringProject.Services;
 
 public class UserService(UserEntityRepository userRepository, 
-    IFileService fileService)
+    IFileService fileService, UserRolesRepository userRolesRepository)
 {
     public async Task<int> RegisterUser(UserRegistrationDTO userDto)
     {
-        var filePath = userDto.AvatarPicture is null ? "Images/1.jpeg" : await fileService.SaveFileAsync(userDto.AvatarPicture, "Images");
-        
+        var filePath = userDto.AvatarPicture is null
+            ? "Images/1.jpeg"
+            : await fileService.SaveFileAsync(userDto.AvatarPicture, "Images");
+
         var userEntity = new UserEntity
         {
             Username = userDto.Username,
@@ -28,7 +31,11 @@ public class UserService(UserEntityRepository userRepository,
             LastLoginAt = default
         };
 
-        userEntity.PasswordHash = userDto.Password.GetHashCode().ToString();
+        Console.WriteLine(userDto.Password + " - userPassword to be hashed");
+
+        userEntity.PasswordHash = userDto.Password.Trim();
+        
+        Console.WriteLine(userEntity.PasswordHash + " - returned hash to be hashed");
 
         await userRepository.AddUserEntity(userEntity);
 
@@ -45,12 +52,15 @@ public class UserService(UserEntityRepository userRepository,
         var user = await userRepository.GetUserEntityByUsername(userDto.Username);
         
         if (user is null) return null;
-        
-        var passwordHash = userDto.Password.GetHashCode().ToString();
-        
-        Console.WriteLine($"DTO PASS: {user.PasswordHash} - INTERNAL: {passwordHash}");
+
+        var passwordHash = userDto.Password.Trim();
         
         return passwordHash != user.PasswordHash ? null : user;
+    }
+
+    public async Task<UserRoleEntity?> GetUserRole(UserEntity user)
+    {
+        return await userRolesRepository.GetUserRole(user);
     }
     
     public async Task<bool> CheckUser(string username, string passwordHash)
