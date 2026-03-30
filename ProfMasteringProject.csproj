@@ -74,8 +74,6 @@
 
     <ItemGroup>
       <Folder Include="Endpoints\" />
-      <Folder Include="Entities\" />
-      <Folder Include="Persistence\" />
       <Folder Include="Schemes\" />
     </ItemGroup>
 
@@ -84,6 +82,31 @@
       <PackageReference Include="FastEndpoints.Swagger" Version="8.1.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Controllers\HomeController.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Endpoints\" />
+      <Folder Include="Images\" />
+      <Folder Include="Schemes\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FastEndpoints" Version="8.1.0" />
+      <PackageReference Include="FastEndpoints.Swagger" Version="8.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\lib\bootstrap-icons\dist\css\bootstrap-icons.css" />
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Приют — Менеджер</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+
+        /* Sidebar */
+        #sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #fff;
+            border-right: 1px solid #dee2e6;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 1040;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        #sidebar .sidebar-brand {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            background: #fff;
+        }
+        #sidebar .nav-link {
+            color: #495057;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: background 0.15s, color 0.15s;
+        }
+        #sidebar .nav-link:hover { background: #f8f9fa; color: #212529; }
+        #sidebar .nav-link.active { background: #fff3cd; color: #e6a817; font-weight: 600; border-right: 3px solid #ffc107; }
+        #sidebar .nav-section {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #adb5bd;
+            padding: 1rem 1.5rem 0.35rem;
+        }
+
+        /* Main */
+        #main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: margin 0.3s ease;
+        }
+        #topbar {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        /* Pages */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Cards */
+        .stat-card { border: none; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,.07); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+
+        /* Priority badges */
+        .priority-high { background: #f8d7da; color: #842029; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-low { background: #d1e7dd; color: #0a3622; }
+
+        /* Table hover */
+        .table-hover tbody tr:hover { background: #fffbf0; cursor: pointer; }
+
+        /* Toast */
+        #toast-container { position: fixed; bottom: 1.5rem; end: 1.5rem; z-index: 9999; right: 1.5rem; }
+
+        /* Avatar */
+        .avatar-lg { width: 90px; height: 90px; object-fit: cover; }
+        .avatar-sm { width: 38px; height: 38px; object-fit: cover; }
+        .avatar-xs { width: 28px; height: 28px; object-fit: cover; }
+
+        /* Overlay */
+        #sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1039;
+        }
+
+        /* Kanban columns */
+        .kanban-col { min-height: 200px; }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 2rem; }
+        .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: #dee2e6; }
+        .timeline-item { position: relative; margin-bottom: 1.5rem; }
+        .timeline-dot { position: absolute; left: -1.775rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 2px #dee2e6; }
+
+        /* Activity bar */
+        .activity-bar { display: inline-flex; align-items: flex-end; gap: 3px; height: 40px; }
+        .activity-bar span { width: 10px; background: #ffc107; border-radius: 2px 2px 0 0; opacity: 0.7; }
+        .activity-bar span.high { opacity: 1; }
+
+        @media (max-width: 991.98px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #sidebar-overlay { display: none; }
+            #sidebar-overlay.open { display: block; }
+            #main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+    <div class="sidebar-brand">
+        <div class="d-flex align-items-center gap-2">
+            <div class="bg-warning text-white rounded-2 d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+                <i class="bi bi-shield-check fs-5"></i>
+            </div>
+            <div>
+                <div class="fw-bold lh-1" style="font-size:.95rem;">ДоброЛапки</div>
+                <small class="text-muted" style="font-size:.72rem;">Менеджер CRM</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-grow-1 overflow-auto py-2">
+        <div class="nav-section">Обзор</div>
+        <a href="#" class="nav-link active" data-page="dashboard">
+            <i class="bi bi-speedometer2"></i> Дашборд
+        </a>
+
+        <div class="nav-section mt-2">Задачи</div>
+        <a href="#" class="nav-link" data-page="tasks-all">
+            <i class="bi bi-list-task"></i> Все задачи
+            <span class="badge bg-warning text-dark ms-auto">24</span>
+        </a>
+        <a href="#" class="nav-link" data-page="tasks-new">
+            <i class="bi bi-plus-circle"></i> Создать задачу
+        </a>
+        <a href="#" class="nav-link" data-page="task-detail">
+            <i class="bi bi-file-text"></i> Детали задачи
+        </a>
+
+        <div class="nav-section mt-2">Отчёты</div>
+        <a href="#" class="nav-link" data-page="reports-pending">
+            <i class="bi bi-hourglass-split"></i> На проверку
+            <span class="badge bg-danger ms-auto">7</span>
+        </a>
+        <a href="#" class="nav-link" data-page="reports-all">
+            <i class="bi bi-journal-richtext"></i> Все отчёты
+        </a>
+        <a href="#" class="nav-link" data-page="report-detail">
+            <i class="bi bi-eye"></i> Детали отчёта
+        </a>
+
+        <div class="nav-section mt-2">Волонтёры</div>
+        <a href="#" class="nav-link" data-page="volunteers">
+            <i class="bi bi-people"></i> Список волонтёров
+        </a>
+        <a href="#" class="nav-link" data-page="volunteer-profile">
+            <i class="bi bi-person-badge"></i> Профиль волонтёра
+        </a>
+
+        <div class="nav-section mt-2">Прочее</div>
+        <a href="#" class="nav-link" data-page="profile">
+            <i class="bi bi-person-circle"></i> Мой профиль
+        </a>
+    </div>
+
+    <div class="p-3 border-top">
+        <div class="d-flex align-items-center gap-2">
+            <img src="https://i.pravatar.cc/40?img=12" class="rounded-circle avatar-xs" alt="">
+            <div style="font-size:.82rem;">
+                <div class="fw-semibold lh-1">Елена Смирнова</div>
+                <small class="text-muted">Менеджер</small>
+            </div>
+            <a href="#" class="ms-auto text-muted"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </div>
+</nav>
+
+<div id="sidebar-overlay"></div>
+
+<!-- Main -->
+<div id="main-content">
+    <!-- Topbar -->
+    <div id="topbar" class="d-flex align-items-center gap-3">
+        <button class="btn btn-light btn-sm d-lg-none" id="sidebar-toggle">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+        <nav aria-label="breadcrumb" class="flex-grow-1">
+            <ol class="breadcrumb mb-0 small" id="breadcrumb">
+                <li class="breadcrumb-item"><a href="#" class="text-warning text-decoration-none">ДоброЛапки</a></li>
+                <li class="breadcrumb-item active">Дашборд</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-light btn-sm position-relative" data-page="reports-pending" id="notif-btn">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;">7</span>
+            </button>
+            <button class="btn btn-warning btn-sm text-white" data-page="tasks-new" id="quick-add-btn">
+                <i class="bi bi-plus-lg me-1"></i>Задача
+            </button>
+            <img src="https://i.pravatar.cc/32?img=12" class="rounded-circle" width="32" height="32" alt="" style="cursor:pointer;" data-page="profile" id="avatar-nav">
+        </div>
+    </div>
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div class="page active p-4" id="page-dashboard">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Добрый день, Елена! 👋</h4>
+                <small class="text-muted">Вторник, 17 июня 2025</small>
+            </div>
+            <button class="btn btn-warning text-white" data-page="tasks-new">
+                <i class="bi bi-plus-lg me-2"></i>Создать задачу
+            </button>
+        </div>
+
+        <!-- Stats row -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-list-task"></i></div>
+                        <div>
+                            <div class="fs-4 fw-bold lh-1">24</div>
+                            <div class="text-muted small">Активных задач</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 small text-success"><i class="bi bi-arrow-up-short"></i>+3 за неделю</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-hourglass-split"></i></div>
+                        <div>
+                            <div class="fs-4 fw-bold lh-1">7</div>
+                            <div class="text-muted small">Отчётов на проверке</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 small text-danger"><i class="bi bi-clock"></i> Ждут более 2 дней: 2</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-people"></i></div>
+                        <div>
+                            <div class="fs-4 fw-bold lh-1">18</div>
+                            <div class="text-muted small">Активных волонтёров</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 small text-muted"><i class="bi bi-person-check"></i> Всего в группах: 32</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-check2-circle"></i></div>
+                        <div>
+                            <div class="fs-4 fw-bold lh-1">89%</div>
+                            <div class="text-muted small">Задач завершено</div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="progress" style="height:4px;">
+                            <div class="progress-bar bg-primary" style="width:89%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left col -->
+            <div class="col-lg-8">
+                <!-- Pending reports alert -->
+                <div class="alert alert-warning border-0 d-flex align-items-center gap-3 mb-4 shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                    <div class="flex-grow-1">
+                        <strong>7 отчётов</strong> ожидают вашей проверки. 2 из них ждут более 2 дней.
+                    </div>
+                    <button class="btn btn-warning btn-sm text-white" data-page="reports-pending">Проверить</button>
+                </div>
+
+                <!-- Tasks by status -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0">Задачи по статусам</h6>
+                        <a href="#" class="small text-warning text-decoration-none" data-page="tasks-all">Все задачи</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-4 text-center">
+                                <div class="fw-bold fs-5 text-warning">8</div>
+                                <small class="text-muted d-block">Новые</small>
+                                <div class="progress mt-1" style="height:3px;"><div class="progress-bar bg-warning" style="width:33%"></div></div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="fw-bold fs-5 text-primary">11</div>
+                                <small class="text-muted d-block">В работе</small>
+                                <div class="progress mt-1" style="height:3px;"><div class="progress-bar bg-primary" style="width:46%"></div></div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="fw-bold fs-5 text-danger">5</div>
+                                <small class="text-muted d-block">Просрочены</small>
+                                <div class="progress mt-1" style="height:3px;"><div class="progress-bar bg-danger" style="width:21%"></div></div>
+                            </div>
+                        </div>
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="fw-semibold small text-muted">Задача</th>
+                                    <th class="fw-semibold small text-muted">Волонтёр</th>
+                                    <th class="fw-semibold small text-muted">Статус</th>
+                                    <th class="fw-semibold small text-muted">Срок</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                <tr data-page="task-detail">
+                                    <td class="fw-semibold">Выгул группы А</td>
+                                    <td><img src="https://i.pravatar.cc/20?img=1" class="rounded-circle me-1" width="20">Антон К.</td>
+                                    <td><span class="badge bg-primary-subtle text-primary">В работе</span></td>
+                                    <td class="text-muted">18 июн</td>
+                                </tr>
+                                <tr data-page="task-detail">
+                                    <td class="fw-semibold">Уборка вольеров №3-7</td>
+                                    <td><img src="https://i.pravatar.cc/20?img=5" class="rounded-circle me-1" width="20">Мария Л.</td>
+                                    <td><span class="badge bg-danger-subtle text-danger">Просрочена</span></td>
+                                    <td class="text-danger fw-semibold">15 июн</td>
+                                </tr>
+                                <tr data-page="task-detail">
+                                    <td class="fw-semibold">Фото новых питомцев</td>
+                                    <td><img src="https://i.pravatar.cc/20?img=9" class="rounded-circle me-1" width="20">Света Р.</td>
+                                    <td><span class="badge bg-warning-subtle text-warning">Новая</span></td>
+                                    <td class="text-muted">20 июн</td>
+                                </tr>
+                                <tr data-page="task-detail">
+                                    <td class="fw-semibold">Помощь ветеринару</td>
+                                    <td><img src="https://i.pravatar.cc/20?img=3" class="rounded-circle me-1" width="20">Дмитрий В.</td>
+                                    <td><span class="badge bg-primary-subtle text-primary">В работе</span></td>
+                                    <td class="text-muted">19 июн</td>
+                                </tr>
+                                <tr data-page="task-detail">
+                                    <td class="fw-semibold">Социализация котят</td>
+                                    <td><span class="text-muted fst-italic">Не назначен</span></td>
+                                    <td><span class="badge bg-warning-subtle text-warning">Новая</span></td>
+                                    <td class="text-muted">22 июн</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Activity chart -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pt-3 pb-0">
+                        <h6 class="fw-bold mb-0">Активность за месяц</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-end gap-1" style="height:100px;">
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:45%;opacity:.7;" title="1 июн"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:60%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:40%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:80%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:55%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:70%;opacity:.8;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:90%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:65%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:50%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:75%;opacity:.8;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:85%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:60%;opacity:.7;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:4px 4px 0 0;height:95%;"></div>
+                            <div style="flex:1;background:#20c997;border-radius:4px 4px 0 0;height:70%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">1 июн</small>
+                            <small class="text-muted">17 июн</small>
+                        </div>
+                        <div class="d-flex gap-3 mt-2">
+                            <span class="small"><span class="badge" style="background:#ffc107;">&nbsp;</span> Задачи</span>
+                            <span class="small"><span class="badge bg-success">&nbsp;</span> Отчёты</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right col -->
+            <div class="col-lg-4">
+                <!-- Pending reports -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0">Отчёты на проверке</h6>
+                        <span class="badge bg-danger rounded-pill">7</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="report-detail">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=1" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="small fw-semibold text-truncate">Антон К. — Выгул группы А</div>
+                                        <div class="text-muted" style="font-size:.72rem;">2 дня назад · <span class="text-danger fw-semibold">Срочно</span></div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="report-detail">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=5" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="small fw-semibold text-truncate">Мария Л. — Кормление</div>
+                                        <div class="text-muted" style="font-size:.72rem;">3 дня назад · <span class="text-danger fw-semibold">Срочно</span></div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="report-detail">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=9" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="small fw-semibold text-truncate">Света Р. — Социализация</div>
+                                        <div class="text-muted" style="font-size:.72rem;">1 день назад</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="report-detail">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=3" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="small fw-semibold text-truncate">Дмитрий В. — Уборка</div>
+                                        <div class="text-muted" style="font-size:.72rem;">Сегодня</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-2 text-center border-top">
+                            <a href="#" class="small text-warning text-decoration-none" data-page="reports-pending">Показать все 7 →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top volunteers -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-3 pb-0">
+                        <h6 class="fw-bold mb-0">Топ волонтёров</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="volunteer-profile">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-warning text-dark fw-bold">1</span>
+                                    <img src="https://i.pravatar.cc/28?img=1" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1">
+                                        <div class="small fw-semibold">Антон Козлов</div>
+                                        <div class="text-muted" style="font-size:.72rem;">12 задач · 48ч</div>
+                                    </div>
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="volunteer-profile">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-secondary text-white fw-bold">2</span>
+                                    <img src="https://i.pravatar.cc/28?img=5" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1">
+                                        <div class="small fw-semibold">Мария Логинова</div>
+                                        <div class="text-muted" style="font-size:.72rem;">10 задач · 40ч</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action px-3 py-2" data-page="volunteer-profile">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-warning-subtle text-warning fw-bold">3</span>
+                                    <img src="https://i.pravatar.cc/28?img=9" class="rounded-circle" width="28">
+                                    <div class="flex-grow-1">
+                                        <div class="small fw-semibold">Светлана Романова</div>
+                                        <div class="text-muted" style="font-size:.72rem;">9 задач · 36ч</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick actions -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pt-3 pb-0">
+                        <h6 class="fw-bold mb-0">Быстрые действия</h6>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <button class="btn btn-warning text-white btn-sm" data-page="tasks-new"><i class="bi bi-plus-circle me-2"></i>Создать задачу</button>
+                        <button class="btn btn-outline-danger btn-sm" data-page="reports-pending"><i class="bi bi-hourglass me-2"></i>Проверить отчёты</button>
+                        <button class="btn btn-outline-secondary btn-sm" data-page="volunteers"><i class="bi bi-people me-2"></i>Управление волонтёрами</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TASKS ALL ==================== -->
+    <div class="page p-4" id="page-tasks-all">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Все задачи</h4>
+                <small class="text-muted">Управление задачами волонтёров</small>
+            </div>
+            <button class="btn btn-warning text-white" data-page="tasks-new">
+                <i class="bi bi-plus-lg me-2"></i>Создать задачу
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" placeholder="Поиск по задачам...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Все статусы</option>
+                            <option>Новая</option>
+                            <option>В работе</option>
+                            <option>На проверке</option>
+                            <option>Завершена</option>
+                            <option>Просрочена</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Приоритет</option>
+                            <option>Высокий</option>
+                            <option>Средний</option>
+                            <option>Низкий</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Все волонтёры</option>
+                            <option>Антон Козлов</option>
+                            <option>Мария Логинова</option>
+                            <option>Светлана Романова</option>
+                            <option>Не назначены</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Категория</option>
+                            <option>Выгул</option>
+                            <option>Уборка</option>
+                            <option>Кормление</option>
+                            <option>Ветеринар</option>
+                            <option>Фото/Видео</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item"><a class="nav-link active" href="#">Все <span class="badge bg-secondary ms-1">24</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Новые <span class="badge bg-warning text-dark ms-1">8</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#">В работе <span class="badge bg-primary ms-1">11</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Просроченные <span class="badge bg-danger ms-1">5</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Завершённые <span class="badge bg-success ms-1">42</span></a></li>
+        </ul>
+
+        <!-- Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
+                            <th class="fw-semibold text-muted small">Задача</th>
+                            <th class="fw-semibold text-muted small">Категория</th>
+                            <th class="fw-semibold text-muted small">Волонтёр</th>
+                            <th class="fw-semibold text-muted small">Приоритет</th>
+                            <th class="fw-semibold text-muted small">Статус</th>
+                            <th class="fw-semibold text-muted small">Срок</th>
+                            <th class="fw-semibold text-muted small">Прогресс</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-page="task-detail" style="cursor:pointer;">
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="fw-semibold small">Выгул группы А (собаки)</div>
+                                <div class="text-muted" style="font-size:.75rem;">Создана 15 июн</div>
+                            </td>
+                            <td><span class="badge bg-success-subtle text-success">Выгул</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=1" class="rounded-circle" width="24">
+                                    <span class="small">Антон К.</span>
+                                </div>
+                            </td>
+                            <td><span class="badge priority-high">Высокий</span></td>
+                            <td><span class="badge bg-primary-subtle text-primary">В работе</span></td>
+                            <td><span class="small text-muted">18 июн</span></td>
+                            <td style="min-width:80px;">
+                                <div class="progress" style="height:5px;">
+                                    <div class="progress-bar bg-primary" style="width:60%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">60%</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item small" href="#" data-page="task-detail"><i class="bi bi-eye me-2"></i>Просмотр</a></li>
+                                        <li><a class="dropdown-item small" href="#" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="task-detail">
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="fw-semibold small">Уборка вольеров №3–7</div>
+                                <div class="text-muted" style="font-size:.75rem;">Создана 12 июн</div>
+                            </td>
+                            <td><span class="badge bg-secondary-subtle text-secondary">Уборка</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=5" class="rounded-circle" width="24">
+                                    <span class="small">Мария Л.</span>
+                                </div>
+                            </td>
+                            <td><span class="badge priority-high">Высокий</span></td>
+                            <td><span class="badge bg-danger-subtle text-danger">Просрочена</span></td>
+                            <td><span class="small text-danger fw-semibold">15 июн</span></td>
+                            <td style="min-width:80px;">
+                                <div class="progress" style="height:5px;">
+                                    <div class="progress-bar bg-danger" style="width:30%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">30%</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item small" href="#" data-page="task-detail"><i class="bi bi-eye me-2"></i>Просмотр</a></li>
+                                        <li><a class="dropdown-item small" href="#" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="task-detail">
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="fw-semibold small">Фотосессия новых питомцев</div>
+                                <div class="text-muted" style="font-size:.75rem;">Создана 16 июн</div>
+                            </td>
+                            <td><span class="badge bg-info-subtle text-info">Фото</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=9" class="rounded-circle" width="24">
+                                    <span class="small">Света Р.</span>
+                                </div>
+                            </td>
+                            <td><span class="badge priority-medium">Средний</span></td>
+                            <td><span class="badge bg-warning-subtle text-warning">Новая</span></td>
+                            <td><span class="small text-muted">20 июн</span></td>
+                            <td style="min-width:80px;">
+                                <div class="progress" style="height:5px;">
+                                    <div class="progress-bar bg-warning" style="width:0%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">0%</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item small" href="#" data-page="task-detail"><i class="bi bi-eye me-2"></i>Просмотр</a></li>
+                                        <li><a class="dropdown-item small" href="#" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="cursor:pointer;">
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="fw-semibold small">Социализация котят (блок 2)</div>
+                                <div class="text-muted" style="font-size:.75rem;">Создана 17 июн</div>
+                            </td>
+                            <td><span class="badge bg-warning-subtle text-warning">Соц.</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-dash text-muted"></i>
+                                    <span class="small text-muted fst-italic">Не назначен</span>
+                                </div>
+                            </td>
+                            <td><span class="badge priority-medium">Средний</span></td>
+                            <td><span class="badge bg-warning-subtle text-warning">Новая</span></td>
+                            <td><span class="small text-muted">22 июн</span></td>
+                            <td style="min-width:80px;">
+                                <div class="progress" style="height:5px;">
+                                    <div class="progress-bar bg-warning" style="width:0%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">0%</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item small" href="#" data-page="task-detail"><i class="bi bi-eye me-2"></i>Просмотр</a></li>
+                                        <li><a class="dropdown-item small" href="#" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="task-detail">
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="fw-semibold small">Помощь ветеринару — прививки</div>
+                                <div class="text-muted" style="font-size:.75rem;">Создана 16 июн</div>
+                            </td>
+                            <td><span class="badge bg-danger-subtle text-danger">Ветеринар</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=3" class="rounded-circle" width="24">
+                                    <span class="small">Дмитрий В.</span>
+                                </div>
+                            </td>
+                            <td><span class="badge priority-high">Высокий</span></td>
+                            <td><span class="badge bg-primary-subtle text-primary">В работе</span></td>
+                            <td><span class="small text-muted">19 июн</span></td>
+                            <td style="min-width:80px;">
+                                <div class="progress" style="height:5px;">
+                                    <div class="progress-bar bg-primary" style="width:80%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">80%</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item small" href="#" data-page="task-detail"><i class="bi bi-eye me-2"></i>Просмотр</a></li>
+                                        <li><a class="dropdown-item small" href="#" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <small class="text-muted">Показано 5 из 24 задач</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">←</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">→</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TASKS NEW ==================== -->
+    <div class="page p-4" id="page-tasks-new">
+        <div class="mb-4">
+            <h4 class="fw-bold mb-0">Создать задачу</h4>
+            <small class="text-muted">Заполните данные новой задачи для волонтёров</small>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Основная информация</h6>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Название задачи <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Например: Выгул группы А (собаки)">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Описание</label>
+                            <textarea class="form-control" rows="5" placeholder="Подробное описание задачи, что нужно сделать, особые указания..."></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Категория <span class="text-danger">*</span></label>
+                                <select class="form-select">
+                                    <option value="">Выберите категорию</option>
+                                    <option>Выгул</option>
+                                    <option>Уборка</option>
+                                    <option>Кормление</option>
+                                    <option>Ветеринар</option>
+                                    <option>Фото/Видео</option>
+                                    <option>Социализация</option>
+                                    <option>Административное</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Приоритет <span class="text-danger">*</span></label>
+                                <select class="form-select">
+                                    <option>Средний</option>
+                                    <option>Высокий</option>
+                                    <option>Низкий</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Сроки и место</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Дата начала</label>
+                                <input type="date" class="form-control" value="2025-06-18">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Дедлайн <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Примерное время</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" placeholder="2">
+                                    <span class="input-group-text">ч.</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Место выполнения</label>
+                                <input type="text" class="form-control" placeholder="Вольеры №3-5, Корпус Б...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Чек-лист</h6>
+                        <div id="checklist-items">
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light"><i class="bi bi-check2-square text-muted"></i></span>
+                                <input type="text" class="form-control" placeholder="Пункт чек-листа...">
+                                <button class="btn btn-light text-danger border" onclick="this.closest('.input-group').remove()"><i class="bi bi-x"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-1" id="add-checklist-item">
+                            <i class="bi bi-plus me-1"></i>Добавить пункт
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Вложения</h6>
+                        <div class="border rounded-3 p-4 text-center" style="border-style:dashed!important;cursor:pointer;">
+                            <i class="bi bi-cloud-upload fs-2 text-muted mb-2 d-block"></i>
+                            <div class="text-muted small">Перетащите файлы или <span class="text-warning">выберите с компьютера</span></div>
+                            <div class="text-muted" style="font-size:.75rem;">PDF, DOCX, JPG, PNG до 10 МБ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Назначение</h6>
+                        <label class="form-label fw-semibold">Волонтёр</label>
+                        <select class="form-select mb-3">
+                            <option value="">— Не назначен —</option>
+                            <option>Антон Козлов</option>
+                            <option>Мария Логинова</option>
+                            <option>Светлана Романова</option>
+                            <option>Дмитрий Волков</option>
+                            <option>Ольга Петрова</option>
+                            <option>Игорь Захаров</option>
+                        </select>
+                        <label class="form-label fw-semibold">Видимость</label>
+                        <select class="form-select">
+                            <option>Только назначенному</option>
+                            <option>Всем волонтёрам</option>
+                            <option>Группа «Собаки»</option>
+                            <option>Группа «Кошки»</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Требования к отчёту</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="req-photo" checked>
+                            <label class="form-check-label small" for="req-photo">Фотоотчёт обязателен</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="req-text" checked>
+                            <label class="form-check-label small" for="req-text">Текстовое описание</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="req-checklist">
+                            <label class="form-check-label small" for="req-checklist">Чек-лист обязателен</label>
+                        </div>
+                        <label class="form-label fw-semibold small">Мин. количество фото</label>
+                        <input type="number" class="form-control form-control-sm" value="2" min="0" max="20">
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Публикация</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning text-white" onclick="showToast('Задача успешно создана и опубликована!', 'success')">
+                                <i class="bi bi-send me-2"></i>Создать и опубликовать
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="showToast('Задача сохранена как черновик', 'info')">
+                                <i class="bi bi-save me-2"></i>Сохранить черновик
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TASK DETAIL ==================== -->
+    <div class="page p-4" id="page-task-detail">
+        <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-primary-subtle text-primary">В работе</span>
+                    <span class="badge priority-high">Высокий</span>
+                    <span class="badge bg-success-subtle text-success">Выгул</span>
+                </div>
+                <h4 class="fw-bold mb-0">Выгул группы А (собаки)</h4>
+                <small class="text-muted">Задача #1042 · Создана 15 июня 2025</small>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-secondary" data-page="task-edit"><i class="bi bi-pencil me-2"></i>Редактировать</button>
+                <button class="btn btn-warning text-white" onclick="showToast('Задача переназначена', 'success')"><i class="bi bi-person-plus me-2"></i>Назначить</button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Description -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Описание задачи</h6>
+                        <p class="text-muted">Выгулять 8 собак из группы А (вольеры №1-8). Каждая собака должна получить не менее 20 минут активной прогулки. Особое внимание уделить Барону (#3) — он агрессивен к другим собакам, выгуливать отдельно.</p>
+                        <p class="text-muted mb-0">После прогулки заполнить журнал активности. Если заметите проблемы со здоровьем у кого-либо из питомцев — немедленно сообщить куратору.</p>
+                    </div>
+                </div>
+
+                <!-- Checklist -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Чек-лист</h6>
+                            <span class="small text-muted">3/5 выполнено</span>
+                        </div>
+                        <div class="progress mb-3" style="height:6px;">
+                            <div class="progress-bar bg-success" style="width:60%"></div>
+                        </div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label text-decoration-line-through text-muted">Получить снаряжение (поводки, сумки)</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label text-decoration-line-through text-muted">Выгул Бобика (#1) — 25 мин</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label text-decoration-line-through text-muted">Выгул Рекса (#2) — 20 мин</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Выгул Барона (#3) — отдельно, 20 мин</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Заполнить журнал активности</label></div>
+                    </div>
+                </div>
+
+                <!-- Attachments -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Вложения</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="border rounded-3 p-2 d-flex align-items-center gap-2 small" style="cursor:pointer;">
+                                <i class="bi bi-file-pdf text-danger fs-5"></i>
+                                <div>
+                                    <div class="fw-semibold">Инструкция_выгул.pdf</div>
+                                    <div class="text-muted" style="font-size:.72rem;">1.2 МБ</div>
+                                </div>
+                            </div>
+                            <div class="border rounded-3 p-2 d-flex align-items-center gap-2 small" style="cursor:pointer;">
+                                <i class="bi bi-file-image text-primary fs-5"></i>
+                                <div>
+                                    <div class="fw-semibold">Схема_вольеров.jpg</div>
+                                    <div class="text-muted" style="font-size:.72rem;">540 КБ</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">История изменений</h6>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-dot bg-success"></div>
+                                <div class="d-flex align-items-start gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=1" class="rounded-circle mt-1" width="24">
+                                    <div>
+                                        <div class="small fw-semibold">Антон Козлов взял задачу</div>
+                                        <div class="text-muted" style="font-size:.75rem;">16 июн 2025, 10:22</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot bg-primary"></div>
+                                <div class="d-flex align-items-start gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=12" class="rounded-circle mt-1" width="24">
+                                    <div>
+                                        <div class="small fw-semibold">Менеджер назначил задачу Антону</div>
+                                        <div class="text-muted" style="font-size:.75rem;">15 июн 2025, 15:40</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot bg-warning"></div>
+                                <div class="d-flex align-items-start gap-2">
+                                    <img src="https://i.pravatar.cc/24?img=12" class="rounded-circle mt-1" width="24">
+                                    <div>
+                                        <div class="small fw-semibold">Задача создана</div>
+                                        <div class="text-muted" style="font-size:.75rem;">15 июн 2025, 14:00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Информация</h6>
+                        <dl class="row small mb-0">
+                            <dt class="col-5 text-muted fw-normal">Статус</dt>
+                            <dd class="col-7"><span class="badge bg-primary-subtle text-primary">В работе</span></dd>
+                            <dt class="col-5 text-muted fw-normal">Приоритет</dt>
+                            <dd class="col-7"><span class="badge priority-high">Высокий</span></dd>
+                            <dt class="col-5 text-muted fw-normal">Дедлайн</dt>
+                            <dd class="col-7 fw-semibold text-danger">18 июн 2025</dd>
+                            <dt class="col-5 text-muted fw-normal">Время</dt>
+                            <dd class="col-7">~2 часа</dd>
+                            <dt class="col-5 text-muted fw-normal">Место</dt>
+                            <dd class="col-7">Вольеры №1–8</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Волонтёр</h6>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <img src="https://i.pravatar.cc/48?img=1" class="rounded-circle" width="48">
+                            <div>
+                                <div class="fw-semibold">Антон Козлов</div>
+                                <div class="text-muted small">Группа «Собаки»</div>
+                                <div class="d-flex gap-1 mt-1">
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.65rem;">12 задач</span>
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.65rem;">⭐ 4.9</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-secondary btn-sm" data-page="volunteer-profile">
+                                <i class="bi bi-person me-2"></i>Профиль волонтёра
+                            </a>
+                            <button class="btn btn-outline-warning btn-sm" onclick="showToast('Сообщение отправлено волонтёру', 'success')">
+                                <i class="bi bi-chat me-2"></i>Написать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Прогресс</h6>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Выполнено</span>
+                            <span class="fw-semibold">60%</span>
+                        </div>
+                        <div class="progress mb-2" style="height:10px;">
+                            <div class="progress-bar bg-primary" style="width:60%;border-radius:10px;"></div>
+                        </div>
+                        <div class="small text-muted">3 из 5 пунктов чек-листа</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm border-warning" style="border-left:3px solid #ffc107!important;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-2 text-warning"><i class="bi bi-exclamation-triangle me-2"></i>Требования к отчёту</h6>
+                        <div class="small text-muted">
+                            <div class="mb-1"><i class="bi bi-check-circle text-success me-2"></i>Текстовое описание</div>
+                            <div class="mb-1"><i class="bi bi-check-circle text-success me-2"></i>Минимум 2 фото</div>
+                            <div><i class="bi bi-check-circle text-success me-2"></i>Чек-лист выполнен</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TASK EDIT ==================== -->
+    <div class="page p-4" id="page-task-edit">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Редактирование задачи</h4>
+                <small class="text-muted">Задача #1042 — Выгул группы А</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary" data-page="task-detail"><i class="bi bi-x me-2"></i>Отмена</button>
+                <button class="btn btn-warning text-white" onclick="showToast('Изменения сохранены!', 'success')"><i class="bi bi-check-lg me-2"></i>Сохранить</button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Основная информация</h6>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Название задачи</label>
+                            <input type="text" class="form-control form-control-lg" value="Выгул группы А (собаки)">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Описание</label>
+                            <textarea class="form-control" rows="5">Выгулять 8 собак из группы А (вольеры №1-8). Каждая собака должна получить не менее 20 минут активной прогулки. Особое внимание уделить Барону (#3).</textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Категория</label>
+                                <select class="form-select">
+                                    <option selected>Выгул</option>
+                                    <option>Уборка</option>
+                                    <option>Кормление</option>
+                                    <option>Ветеринар</option>
+                                    <option>Фото/Видео</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Приоритет</label>
+                                <select class="form-select">
+                                    <option selected>Высокий</option>
+                                    <option>Средний</option>
+                                    <option>Низкий</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Сроки</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Дата начала</label>
+                                <input type="date" class="form-control" value="2025-06-16">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Дедлайн</label>
+                                <input type="date" class="form-control" value="2025-06-18">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Примерное время</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" value="2">
+                                    <span class="input-group-text">ч.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Статус задачи</h6>
+                        <select class="form-select form-select-lg">
+                            <option>Новая</option>
+                            <option selected>В работе</option>
+                            <option>На проверке</option>
+                            <option>Завершена</option>
+                            <option>Отменена</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Назначение</h6>
+                        <label class="form-label fw-semibold">Волонтёр</label>
+                        <select class="form-select mb-2">
+                            <option>— Не назначен —</option>
+                            <option selected>Антон Козлов</option>
+                            <option>Мария Логинова</option>
+                            <option>Светлана Романова</option>
+                            <option>Дмитрий Волков</option>
+                        </select>
+                        <div class="alert alert-warning-subtle border border-warning-subtle rounded-3 small p-2 mt-2">
+                            <i class="bi bi-info-circle text-warning me-1"></i>
+                            У Антона 3 активные задачи. Возможна перегрузка.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Опасная зона</h6>
+                        <p class="small text-muted">Отменить или удалить задачу необратимо</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-warning btn-sm" onclick="showToast('Задача отменена', 'warning')">
+                                <i class="bi bi-x-circle me-2"></i>Отменить задачу
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="showToast('Задача удалена', 'danger')">
+                                <i class="bi bi-trash me-2"></i>Удалить задачу
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORTS PENDING ==================== -->
+    <div class="page p-4" id="page-reports-pending">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Отчёты на проверке</h4>
+                <small class="text-muted">Ожидают вашего решения</small>
+            </div>
+            <span class="badge bg-danger rounded-pill fs-6 px-3">7 отчётов</span>
+        </div>
+
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-clock-history fs-5"></i>
+            <div><strong>2 отчёта</strong> ожидают более 48 часов. Рекомендуется рассмотреть в первую очередь.</div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Report card 1 — urgent -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm border-start border-danger border-3">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://i.pravatar.cc/40?img=1" class="rounded-circle" width="40">
+                                <div>
+                                    <div class="fw-semibold">Антон Козлов</div>
+                                    <div class="text-muted small">Задача: Выгул группы А</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-danger">Срочно</span>
+                        </div>
+                        <p class="text-muted small mb-3">«Выгулял всех 8 собак. Барон был немного возбуждён, но вёл себя хорошо. Все животные получили по 25 минут прогулки. Замечаний по здоровью нет...»</p>
+                        <div class="d-flex gap-2 mb-3">
+                            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                            <div class="rounded-2 bg-light d-flex align-items-center justify-content-center" style="width:60px;height:60px;font-size:.75rem;color:#6c757d;">+3 фото</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-danger fw-semibold"><i class="bi bi-clock me-1"></i>3 дня назад · 15 июн 14:30</small>
+                            <a href="#" class="small text-warning text-decoration-none" data-page="report-detail">Подробнее →</a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-fill btn-sm" onclick="showToast('Отчёт одобрен! Волонтёр уведомлён.', 'success')">
+                                <i class="bi bi-check-lg me-1"></i>Одобрить
+                            </button>
+                            <button class="btn btn-outline-danger flex-fill btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-lg me-1"></i>Отклонить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report card 2 — urgent -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm border-start border-danger border-3">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://i.pravatar.cc/40?img=5" class="rounded-circle" width="40">
+                                <div>
+                                    <div class="fw-semibold">Мария Логинова</div>
+                                    <div class="text-muted small">Задача: Кормление кошек</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-danger">Срочно</span>
+                        </div>
+                        <p class="text-muted small mb-3">«Накормила всех кошек согласно расписанию. Миски помыла. Котёнок Рыжик отказывается от сухого корма, возможно нужна ветеринарная консультация...»</p>
+                        <div class="d-flex gap-2 mb-3">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                            <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-danger fw-semibold"><i class="bi bi-clock me-1"></i>3 дня назад · 15 июн 11:00</small>
+                            <a href="#" class="small text-warning text-decoration-none" data-page="report-detail">Подробнее →</a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-fill btn-sm" onclick="showToast('Отчёт одобрен! Волонтёр уведомлён.', 'success')">
+                                <i class="bi bi-check-lg me-1"></i>Одобрить
+                            </button>
+                            <button class="btn btn-outline-danger flex-fill btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-lg me-1"></i>Отклонить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report card 3 -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://i.pravatar.cc/40?img=9" class="rounded-circle" width="40">
+                                <div>
+                                    <div class="fw-semibold">Светлана Романова</div>
+                                    <div class="text-muted small">Задача: Социализация котят</div>
+                                </div>
+                            </div>
+                            <small class="text-muted">1 день назад</small>
+                        </div>
+                        <p class="text-muted small mb-3">«Провела 2 часа с котятами из блока В. Все активны, хорошо идут на контакт. Провела игровые сессии с каждым...»</p>
+                        <div class="d-flex gap-2 mb-3">
+                            <img src="https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i>16 июн 09:15</small>
+                            <a href="#" class="small text-warning text-decoration-none" data-page="report-detail">Подробнее →</a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-fill btn-sm" onclick="showToast('Отчёт одобрен! Волонтёр уведомлён.', 'success')">
+                                <i class="bi bi-check-lg me-1"></i>Одобрить
+                            </button>
+                            <button class="btn btn-outline-danger flex-fill btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-lg me-1"></i>Отклонить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report card 4 -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://i.pravatar.cc/40?img=3" class="rounded-circle" width="40">
+                                <div>
+                                    <div class="fw-semibold">Дмитрий Волков</div>
+                                    <div class="text-muted small">Задача: Уборка вольеров</div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Сегодня</small>
+                        </div>
+                        <p class="text-muted small mb-3">«Убрал вольеры №3-7. Поменял подстилки, вымыл полы дезраствором. В вольере №6 обнаружил повреждение сетки...»</p>
+                        <div class="d-flex gap-2 mb-3">
+                            <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                            <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=80&h=80&fit=crop" class="rounded-2" width="60" height="60" style="object-fit:cover;">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i>Сегодня, 08:40</small>
+                            <a href="#" class="small text-warning text-decoration-none" data-page="report-detail">Подробнее →</a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success flex-fill btn-sm" onclick="showToast('Отчёт одобрен! Волонтёр уведомлён.', 'success')">
+                                <i class="bi bi-check-lg me-1"></i>Одобрить
+                            </button>
+                            <button class="btn btn-outline-danger flex-fill btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-lg me-1"></i>Отклонить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORTS ALL ==================== -->
+    <div class="page p-4" id="page-reports-all">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Все отчёты</h4>
+                <small class="text-muted">История всех отчётов волонтёров</small>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" placeholder="Поиск по отчётам...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Все статусы</option>
+                            <option>На проверке</option>
+                            <option>Одобрен</option>
+                            <option>Отклонён</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Все волонтёры</option>
+                            <option>Антон Козлов</option>
+                            <option>Мария Логинова</option>
+                            <option>Светлана Романова</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" placeholder="От">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" placeholder="До">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-warning">49</div>
+                    <div class="small text-muted">Всего отчётов</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-danger">7</div>
+                    <div class="small text-muted">На проверке</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-success">38</div>
+                    <div class="small text-muted">Одобрено</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-secondary">4</div>
+                    <div class="small text-muted">Отклонено</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fw-semibold text-muted small">Волонтёр</th>
+                            <th class="fw-semibold text-muted small">Задача</th>
+                            <th class="fw-semibold text-muted small">Статус</th>
+                            <th class="fw-semibold text-muted small">Фото</th>
+                            <th class="fw-semibold text-muted small">Дата сдачи</th>
+                            <th class="fw-semibold text-muted small">Рассмотрено</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        <tr data-page="report-detail" style="cursor:pointer;">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=1" class="rounded-circle" width="28">
+                                    <span>Антон Козлов</span>
+                                </div>
+                            </td>
+                            <td>Выгул группы А</td>
+                            <td><span class="badge bg-danger-subtle text-danger">На проверке</span></td>
+                            <td><i class="bi bi-images text-success me-1"></i>5</td>
+                            <td class="text-muted">15 июн 14:30</td>
+                            <td><span class="text-muted fst-italic">—</span></td>
+                            <td><button class="btn btn-sm btn-warning text-white" data-page="report-detail">Проверить</button></td>
+                        </tr>
+                        <tr data-page="report-detail" style="cursor:pointer;">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=5" class="rounded-circle" width="28">
+                                    <span>Мария Логинова</span>
+                                </div>
+                            </td>
+                            <td>Кормление кошек</td>
+                            <td><span class="badge bg-danger-subtle text-danger">На проверке</span></td>
+                            <td><i class="bi bi-images text-success me-1"></i>2</td>
+                            <td class="text-muted">15 июн 11:00</td>
+                            <td><span class="text-muted fst-italic">—</span></td>
+                            <td><button class="btn btn-sm btn-warning text-white" data-page="report-detail">Проверить</button></td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="report-detail">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=9" class="rounded-circle" width="28">
+                                    <span>Светлана Романова</span>
+                                </div>
+                            </td>
+                            <td>Фото новых питомцев</td>
+                            <td><span class="badge bg-success-subtle text-success">Одобрен</span></td>
+                            <td><i class="bi bi-images text-success me-1"></i>12</td>
+                            <td class="text-muted">14 июн 16:00</td>
+                            <td class="text-muted">14 июн 18:30</td>
+                            <td><button class="btn btn-sm btn-outline-secondary" data-page="report-detail">Просмотр</button></td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="report-detail">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=3" class="rounded-circle" width="28">
+                                    <span>Дмитрий Волков</span>
+                                </div>
+                            </td>
+                            <td>Уборка вольеров</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary">Отклонён</span></td>
+                            <td><i class="bi bi-images text-warning me-1"></i>1</td>
+                            <td class="text-muted">13 июн 15:00</td>
+                            <td class="text-muted">13 июн 17:00</td>
+                            <td><button class="btn btn-sm btn-outline-secondary" data-page="report-detail">Просмотр</button></td>
+                        </tr>
+                        <tr style="cursor:pointer;" data-page="report-detail">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://i.pravatar.cc/28?img=1" class="rounded-circle" width="28">
+                                    <span>Антон Козлов</span>
+                                </div>
+                            </td>
+                            <td>Выгул группы Б</td>
+                            <td><span class="badge bg-success-subtle text-success">Одобрен</span></td>
+                            <td><i class="bi bi-images text-success me-1"></i>4</td>
+                            <td class="text-muted">12 июн 13:20</td>
+                            <td class="text-muted">12 июн 15:00</td>
+                            <td><button class="btn btn-sm btn-outline-secondary" data-page="report-detail">Просмотр</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <small class="text-muted">Показано 5 из 49 отчётов</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">←</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">→</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORT DETAIL ==================== -->
+    <div class="page p-4" id="page-report-detail">
+        <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-danger-subtle text-danger">На проверке</span>
+                    <span class="badge bg-warning-subtle text-warning">3 дня назад</span>
+                </div>
+                <h4 class="fw-bold mb-0">Отчёт по задаче «Выгул группы А»</h4>
+                <small class="text-muted">Отчёт #R-2451 · Антон Козлов · 15 июн 2025, 14:30</small>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Report text -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Текст отчёта</h6>
+                        <p class="text-muted">Выгулял всех 8 собак из группы А согласно заданию. Барон вёл себя спокойнее обычного, без агрессии — хорошо отреагировал на лакомство. Все животные получили по 25 минут активной прогулки.</p>
+                        <p class="text-muted">Замечаний по здоровью нет. Все собаки активны, хороший аппетит. Журнал активности заполнен и сдан дежурному сотруднику.</p>
+                        <p class="text-muted mb-0">Общее время: 3 часа 20 минут (с учётом подготовки). Всё выполнено согласно инструкции.</p>
+                    </div>
+                </div>
+
+                <!-- Checklist in report -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Выполнение чек-листа</h6>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label">Получить снаряжение (поводки, сумки)</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label">Выгул Бобика (#1) — 25 мин</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label">Выгул Рекса (#2) — 20 мин</label></div>
+                        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label">Выгул Барона (#3) — отдельно, 20 мин</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" checked disabled><label class="form-check-label">Заполнить журнал активности</label></div>
+                    </div>
+                </div>
+
+                <!-- Photos -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Фотоотчёт <span class="badge bg-secondary-subtle text-secondary ms-1">5 фото</span></h6>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=300&h=200&fit=crop" class="img-fluid rounded-3 w-100" style="height:130px;object-fit:cover;">
+                            </div>
+                            <div class="col-4">
+                                <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=300&h=200&fit=crop" class="img-fluid rounded-3 w-100" style="height:130px;object-fit:cover;">
+                            </div>
+                            <div class="col-4">
+                                <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=300&h=200&fit=crop" class="img-fluid rounded-3 w-100" style="height:130px;object-fit:cover;">
+                            </div>
+                            <div class="col-4">
+                                <img src="https://images.unsplash.com/photo-1601979031925-424e53b6caaa?w=300&h=200&fit=crop" class="img-fluid rounded-3 w-100" style="height:130px;object-fit:cover;">
+                            </div>
+                            <div class="col-4">
+                                <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=300&h=200&fit=crop" class="img-fluid rounded-3 w-100" style="height:130px;object-fit:cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review form -->
+                <div class="card border-0 shadow-sm border-top border-warning border-3">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square text-warning me-2"></i>Ваше решение</h6>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Комментарий менеджера</label>
+                            <textarea class="form-control" rows="3" placeholder="Оставьте комментарий для волонтёра (необязательно при одобрении, обязательно при отклонении)..."></textarea>
+                        </div>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <button class="btn btn-success px-4" onclick="showToast('Отчёт одобрен! Волонтёр получил уведомление.', 'success')">
+                                <i class="bi bi-check-lg me-2"></i>Одобрить отчёт
+                            </button>
+                            <button class="btn btn-outline-danger px-4" onclick="showToast('Отчёт отклонён. Волонтёру отправлен комментарий.', 'warning')">
+                                <i class="bi bi-x-lg me-2"></i>Отклонить
+                            </button>
+                            <button class="btn btn-outline-secondary px-4" onclick="showToast('Запрошены дополнительные материалы', 'info')">
+                                <i class="bi bi-chat-dots me-2"></i>Запросить дополнение
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Волонтёр</h6>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <img src="https://i.pravatar.cc/48?img=1" class="rounded-circle" width="48">
+                            <div>
+                                <div class="fw-semibold">Антон Козлов</div>
+                                <div class="text-muted small">12 отчётов · ⭐ 4.9</div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-page="volunteer-profile">
+                            <i class="bi bi-person me-2"></i>Профиль волонтёра
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Задача</h6>
+                        <div class="small">
+                            <div class="fw-semibold mb-1">Выгул группы А (собаки)</div>
+                            <div class="text-muted mb-2">#1042 · Срок: 18 июн 2025</div>
+                            <span class="badge bg-success-subtle text-success">Выгул</span>
+                            <span class="badge priority-high ms-1">Высокий</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-secondary btn-sm w-100 mt-3" data-page="task-detail">
+                            <i class="bi bi-list-task me-2"></i>Открыть задачу
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">История отчётов волонтёра</h6>
+                        <div class="small">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Кормление кошек</span>
+                                <span class="badge bg-success-subtle text-success">Одобрен</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Выгул группы Б</span>
+                                <span class="badge bg-success-subtle text-success">Одобрен</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Уборка вольеров</span>
+                                <span class="badge bg-secondary-subtle text-secondary">Отклонён</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VOLUNTEERS ==================== -->
+    <div class="page p-4" id="page-volunteers">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Волонтёры</h4>
+                <small class="text-muted">Управление волонтёрами ваших групп</small>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" placeholder="Поиск волонтёра...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option>Все группы</option>
+                            <option>Группа «Собаки»</option>
+                            <option>Группа «Кошки»</option>
+                            <option>Группа «Ветеринар»</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Все статусы</option>
+                            <option>Активный</option>
+                            <option>Неактивный</option>
+                            <option>Новый</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Сортировка</option>
+                            <option>По имени</option>
+                            <option>По задачам</option>
+                            <option>По рейтингу</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-primary">32</div>
+                    <div class="small text-muted">Всего волонтёров</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-success">18</div>
+                    <div class="small text-muted">Активных</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-warning">5</div>
+                    <div class="small text-muted">Новых (месяц)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-3">
+                    <div class="fs-4 fw-bold text-muted">9</div>
+                    <div class="small text-muted">Неактивных</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volunteer cards -->
+        <div class="row g-3">
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=1" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Антон Козлов</span>
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    <span class="small text-muted">4.9</span>
+                                </div>
+                                <div class="small text-muted">Группа «Собаки» · С апреля 2024</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:.68rem;">3 задачи</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.68rem;">12 выполнено</span>
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.68rem;">48ч</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-warning" style="width:75%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">75%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=5" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Мария Логинова</span>
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    <span class="small text-muted">4.7</span>
+                                </div>
+                                <div class="small text-muted">Группа «Кошки» · С февраля 2024</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:.68rem;">2 задачи</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.68rem;">10 выполнено</span>
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.68rem;">40ч</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-success" style="width:50%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">50%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=9" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Светлана Романова</span>
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    <span class="small text-muted">4.8</span>
+                                </div>
+                                <div class="small text-muted">Группа «Кошки» · С июня 2024</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:.68rem;">1 задача</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.68rem;">9 выполнено</span>
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.68rem;">36ч</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-success" style="width:25%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">25%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=3" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-warning rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Дмитрий Волков</span>
+                                    <i class="bi bi-star text-warning small"></i>
+                                    <span class="small text-muted">3.9</span>
+                                </div>
+                                <div class="small text-muted">Группа «Ветеринар» · С марта 2025</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:.68rem;">2 задачи</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.68rem;">4 выполнено</span>
+                                    <span class="badge bg-secondary-subtle text-secondary" style="font-size:.68rem;">1 отклонён</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-danger" style="width:90%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">90%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=20" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-secondary rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Ольга Петрова</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.65rem;">Новый</span>
+                                </div>
+                                <div class="small text-muted">Группа «Собаки» · С июня 2025</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.68rem;">0 задач</span>
+                                    <span class="badge bg-secondary-subtle text-secondary" style="font-size:.68rem;">0 выполнено</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-success" style="width:0%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-page="volunteer-profile" style="cursor:pointer;">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="https://i.pravatar.cc/60?img=7" class="rounded-circle" width="56" height="56">
+                                <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-1" style="width:14px;height:14px;"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Игорь Захаров</span>
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    <span class="small text-muted">4.5</span>
+                                </div>
+                                <div class="small text-muted">Группа «Собаки» · С января 2025</div>
+                                <div class="d-flex gap-2 mt-1 flex-wrap">
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:.68rem;">1 задача</span>
+                                    <span class="badge bg-success-subtle text-success" style="font-size:.68rem;">7 выполнено</span>
+                                    <span class="badge bg-warning-subtle text-warning" style="font-size:.68rem;">28ч</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted mb-1">Нагрузка</div>
+                                <div class="progress" style="width:60px;height:6px;">
+                                    <div class="progress-bar bg-success" style="width:35%"></div>
+                                </div>
+                                <div class="text-muted" style="font-size:.7rem;">35%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-down me-2"></i>Загрузить ещё (26)
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== VOLUNTEER PROFILE ==================== -->
+    <div class="page p-4" id="page-volunteer-profile">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Профиль волонтёра</h4>
+                <small class="text-muted">Антон Козлов</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-warning btn-sm" onclick="showToast('Сообщение отправлено волонтёру', 'success')">
+                    <i class="bi bi-chat me-2"></i>Написать
+                </button>
+                <button class="btn btn-warning text-white btn-sm" data-page="tasks-new">
+                    <i class="bi bi-plus me-2"></i>Назначить задачу
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4 text-center">
+                    <div class="card-body p-4">
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="https://i.pravatar.cc/90?img=1" class="rounded-circle avatar-lg" alt="">
+                            <span class="position-absolute bottom-0 end-0 badge bg-success rounded-circle p-2" style="width:18px;height:18px;"></span>
+                        </div>
+                        <h5 class="fw-bold mb-0">Антон Козлов</h5>
+                        <p class="text-muted small mb-3">antonkozlov@mail.ru · +7 (905) 111-22-33</p>
+                        <div class="d-flex justify-content-center gap-1 mb-3">
+                            <span class="badge bg-success-subtle text-success">Активный</span>
+                            <span class="badge bg-primary-subtle text-primary">Группа «Собаки»</span>
+                        </div>
+                        <div class="row text-center g-2">
+                            <div class="col-4">
+                                <div class="fw-bold text-warning fs-5 lh-1">12</div>
+                                <div class="text-muted" style="font-size:.72rem;">Задач</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-bold text-success fs-5 lh-1">48</div>
+                                <div class="text-muted" style="font-size:.72rem;">Часов</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-bold text-primary fs-5 lh-1">4.9</div>
+                                <div class="text-muted" style="font-size:.72rem;">Рейтинг</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Информация</h6>
+                        <dl class="row small mb-0">
+                            <dt class="col-5 text-muted fw-normal">В приюте с</dt>
+                            <dd class="col-7">Апрель 2024</dd>
+                            <dt class="col-5 text-muted fw-normal">Группа</dt>
+                            <dd class="col-7">«Собаки»</dd>
+                            <dt class="col-5 text-muted fw-normal">Статус</dt>
+                            <dd class="col-7"><span class="badge bg-success-subtle text-success">Активный</span></dd>
+                            <dt class="col-5 text-muted fw-normal">Последняя задача</dt>
+                            <dd class="col-7">16 июн 2025</dd>
+                            <dt class="col-5 text-muted fw-normal">Нагрузка</dt>
+                            <dd class="col-7">
+                                <div class="progress" style="height:6px;width:80px;">
+                                    <div class="progress-bar bg-warning" style="width:75%"></div>
+                                </div>
+                                <span style="font-size:.7rem;" class="text-muted">75%</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Доступность</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-success-subtle text-success">Пн</span>
+                            <span class="badge bg-success-subtle text-success">Ср</span>
+                            <span class="badge bg-success-subtle text-success">Пт</span>
+                            <span class="badge bg-success-subtle text-success">Сб</span>
+                            <span class="badge bg-secondary-subtle text-muted">Вт</span>
+                            <span class="badge bg-secondary-subtle text-muted">Чт</span>
+                            <span class="badge bg-secondary-subtle text-muted">Вс</span>
+                        </div>
+                        <div class="small text-muted mt-2"><i class="bi bi-clock me-1"></i>10:00 – 18:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <!-- Activity chart -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-3 pb-0">
+                        <h6 class="fw-bold mb-0">Активность за месяц</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-end gap-1" style="height:80px;">
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:60%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:80%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:40%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:100%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:70%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:50%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:90%;"></div>
+                            <div style="flex:1;background:#ffc107;border-radius:3px 3px 0 0;height:65%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">1 июн</small>
+                            <small class="text-muted">17 июн</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task history tabs -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 pt-3">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item"><a class="nav-link active" href="#">Активные задачи <span class="badge bg-primary ms-1">3</span></a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">История <span class="badge bg-secondary ms-1">12</span></a></li>
+                        </ul>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item px-4 py-3" data-page="task-detail" style="cursor:pointer;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-semibold small">Выгул группы А (собаки)</div>
+                                        <div class="text-muted" style="font-size:.75rem;">Срок: 18 июн · <span class="text-primary">В работе</span></div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge priority-high">Высокий</span>
+                                        <div class="progress" style="width:50px;height:5px;">
+                                            <div class="progress-bar bg-primary" style="width:60%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item px-4 py-3" data-page="task-detail" style="cursor:pointer;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-semibold small">Помощь на выставке</div>
+                                        <div class="text-muted" style="font-size:.75rem;">Срок: 20 июн · <span class="text-warning">Новая</span></div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge priority-medium">Средний</span>
+                                        <div class="progress" style="width:50px;height:5px;">
+                                            <div class="progress-bar bg-warning" style="width:0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item px-4 py-3" data-page="task-detail" style="cursor:pointer;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-semibold small">Кормление вечернее</div>
+                                        <div class="text-muted" style="font-size:.75rem;">Срок: 17 июн · <span class="text-danger">Просрочена</span></div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge priority-high">Высокий</span>
+                                        <div class="progress" style="width:50px;height:5px;">
+                                            <div class="progress-bar bg-danger" style="width:50%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports history -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pt-3 pb-0">
+                        <h6 class="fw-bold mb-3">История отчётов</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-muted fw-semibold">Задача</th>
+                                    <th class="text-muted fw-semibold">Дата</th>
+                                    <th class="text-muted fw-semibold">Статус</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-page="report-detail" style="cursor:pointer;">
+                                    <td>Выгул группы А</td>
+                                    <td class="text-muted">15 июн</td>
+                                    <td><span class="badge bg-danger-subtle text-danger">На проверке</span></td>
+                                    <td><button class="btn btn-sm btn-warning text-white" data-page="report-detail">Проверить</button></td>
+                                </tr>
+                                <tr data-page="report-detail" style="cursor:pointer;">
+                                    <td>Выгул группы Б</td>
+                                    <td class="text-muted">12 июн</td>
+                                    <td><span class="badge bg-success-subtle text-success">Одобрен</span></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary" data-page="report-detail">Просмотр</button></td>
+                                </tr>
+                                <tr data-page="report-detail" style="cursor:pointer;">
+                                    <td>Кормление собак</td>
+                                    <td class="text-muted">10 июн</td>
+                                    <td><span class="badge bg-success-subtle text-success">Одобрен</span></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary" data-page="report-detail">Просмотр</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE ==================== -->
+    <div class="page p-4" id="page-profile">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">Мой профиль</h4>
+                <small class="text-muted">Личные данные менеджера</small>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4 text-center">
+                    <div class="card-body p-4">
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="https://i.pravatar.cc/90?img=12" class="rounded-circle avatar-lg" alt="">
+                            <button class="btn btn-warning btn-sm rounded-circle position-absolute bottom-0 end-0 p-1" style="width:28px;height:28px;" onclick="showToast('Загрузите новое фото', 'info')">
+                                <i class="bi bi-camera" style="font-size:.7rem;"></i>
+                            </button>
+                        </div>
+                        <h5 class="fw-bold mb-0">Елена Смирнова</h5>
+                        <p class="text-muted small mb-3">Менеджер волонтёров</p>
+                        <div class="d-flex justify-content-center gap-1 mb-3">
+                            <span class="badge bg-warning-subtle text-warning">Менеджер</span>
+                            <span class="badge bg-success-subtle text-success">Активный</span>
+                        </div>
+                        <div class="row text-center g-2">
+                            <div class="col-4">
+                                <div class="fw-bold text-warning fs-5 lh-1">24</div>
+                                <div class="text-muted" style="font-size:.72rem;">Задач</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-bold text-success fs-5 lh-1">32</div>
+                                <div class="text-muted" style="font-size:.72rem;">Волонтёров</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-bold text-primary fs-5 lh-1">8</div>
+                                <div class="text-muted" style="font-size:.72rem;">мес. работы</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Быстрые действия</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-warning btn-sm" onclick="showToast('Экспорт запущен', 'info')">
+                                <i class="bi bi-download me-2"></i>Экспорт статистики
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="showToast('Уведомления настроены', 'success')">
+                                <i class="bi bi-bell me-2"></i>Настройки уведомлений
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Личные данные</h6>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Имя</label>
+                                <input type="text" class="form-control" value="Елена">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Фамилия</label>
+                                <input type="text" class="form-control" value="Смирнова">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Email</label>
+                                <input type="email" class="form-control" value="e.smirnova@dobrie-lapki.ru">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Телефон</label>
+                                <input type="tel" class="form-control" value="+7 (916) 234-56-78">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-muted">Должность</label>
+                                <input type="text" class="form-control" value="Менеджер волонтёров" readonly>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button class="btn btn-warning text-white" onclick="showToast('Данные сохранены!', 'success')">
+                                    <i class="bi bi-save me-2"></i>Сохранить изменения
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">Смена пароля</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-muted">Текущий пароль</label>
+                                <input type="password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Новый пароль</label>
+                                <input type="password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Повторите пароль</label>
+                                <input type="password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button class="btn btn-outline-secondary" onclick="showToast('Пароль успешно изменён!', 'success')">
+                                    <i class="bi bi-shield-lock me-2"></i>Изменить пароль
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Настройки уведомлений</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label small">Новые отчёты на проверке</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label small">Просроченные задачи</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label small">Новые волонтёры</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label small">Email-дайджест (еженедельно)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- end main -->
+
+<!-- ==================== REJECT MODAL ==================== -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Отклонить отчёт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning border-0 small">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Волонтёр получит уведомление с вашим комментарием и сможет переработать отчёт.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Причина отклонения <span class="text-danger">*</span></label>
+                    <select class="form-select mb-2">
+                        <option>Недостаточно фотографий</option>
+                        <option>Неполное описание</option>
+                        <option>Задача выполнена не полностью</option>
+                        <option>Другое</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Комментарий для волонтёра</label>
+                    <textarea class="form-control" rows="3" placeholder="Объясните, что нужно исправить или добавить..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="showToast('Отчёт отклонён. Волонтёр уведомлён.', 'warning')">
+                    <i class="bi bi-x-lg me-2"></i>Отклонить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ========== ROUTING ==========
+    const breadcrumbs = {
+        'dashboard':          ['Дашборд'],
+        'tasks-all':          ['Задачи', 'Все задачи'],
+        'tasks-new':          ['Задачи', 'Создать задачу'],
+        'task-detail':        ['Задачи', 'Все задачи', 'Задача #1042'],
+        'task-edit':          ['Задачи', 'Все задачи', 'Задача #1042', 'Редактирование'],
+        'reports-pending':    ['Отчёты', 'На проверке'],
+        'reports-all':        ['Отчёты', 'Все отчёты'],
+        'report-detail':      ['Отчёты', 'Все отчёты', 'Отчёт #R-2451'],
+        'volunteers':         ['Волонтёры', 'Список'],
+        'volunteer-profile':  ['Волонтёры', 'Антон Козлов'],
+        'profile':            ['Мой профиль'],
+    };
+
+    function navigateTo(pageId) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // Show target
+        const target = document.getElementById('page-' + pageId);
+        if (target) target.classList.add('active');
+
+        // Update sidebar
+        document.querySelectorAll('#sidebar .nav-link').forEach(l => {
+            l.classList.toggle('active', l.dataset.page === pageId);
+        });
+
+        // Update breadcrumb
+        const bc = breadcrumbs[pageId] || [pageId];
+        const ol = document.getElementById('breadcrumb');
+        ol.innerHTML = '<li class="breadcrumb-item"><a href="#" class="text-warning text-decoration-none" data-page="dashboard">ДоброЛапки</a></li>';
+        bc.forEach((item, i) => {
+            const li = document.createElement('li');
+            li.className = 'breadcrumb-item' + (i === bc.length - 1 ? ' active' : '');
+            li.textContent = item;
+            ol.appendChild(li);
+        });
+
+        // Close sidebar on mobile
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+    }
+
+    // Delegate clicks
+    document.addEventListener('click', function(e) {
+        const el = e.target.closest('[data-page]');
+        if (el) {
+            e.preventDefault();
+            navigateTo(el.dataset.page);
+        }
+    });
+
+    // Sidebar toggle (mobile)
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('open');
+    });
+    document.getElementById('sidebar-overlay').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+    });
+
+    // ========== TOAST ==========
+    function showToast(message, type = 'success') {
+        const colors = {
+            success: 'bg-success',
+            warning: 'bg-warning',
+            danger:  'bg-danger',
+            info:    'bg-primary'
+        };
+        const icons = {
+            success: 'bi-check-circle-fill',
+            warning: 'bi-exclamation-triangle-fill',
+            danger:  'bi-x-circle-fill',
+            info:    'bi-info-circle-fill'
+        };
+        const id = 'toast-' + Date.now();
+        const html = `
+            <div id="${id}" class="toast align-items-center text-white ${colors[type] || 'bg-success'} border-0 mb-2" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center gap-2">
+                        <i class="bi ${icons[type] || 'bi-check-circle-fill'}"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>`;
+        document.getElementById('toast-container').insertAdjacentHTML('beforeend', html);
+        const toastEl = document.getElementById(id);
+        const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+        toast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    }
+
+    // ========== CHECKLIST ADD ==========
+    document.getElementById('add-checklist-item').addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <span class="input-group-text bg-light"><i class="bi bi-check2-square text-muted"></i></span>
+            <input type="text" class="form-control" placeholder="Пункт чек-листа...">
+            <button class="btn btn-light text-danger border" onclick="this.closest('.input-group').remove()"><i class="bi bi-x"></i></button>`;
+        document.getElementById('checklist-items').appendChild(div);
+    });
+
+    // Init
+    navigateTo('dashboard');
+</script>
+</body>
+</html>
