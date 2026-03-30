@@ -6,42 +6,109 @@
     <title>@ViewData["Title"] - ProfMasteringProject</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/ProfMasteringProject.styles.css" asp-append-version="true"/>
 </head>
-<body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProfMasteringProject</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+<body class="bg-light d-flex flex-column min-vh-100 m-0">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand pt-0 fw-bold text-warning fs-4 align-content-center" 
+                asp-controller="Index" asp-action="Index">
+            <img class="mx-2 align-middle" src="assets/logo.svg" width="30" height="30" alt="logo"/>
+            <span class="align-middle">AnimalShelter</span>
+            @*<i class="bi bi-heart-pulse-fill text-success me-2"></i>*@
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" asp-controller="Index" asp-action="Index">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Pets" asp-action="Index">Питомцы</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Index" asp-action="AboutUs">О нас</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Index" asp-action="HelpUs">Помочь</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Index" asp-action="ContactUs">Контакты</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Volunteer" asp-action="Index">Волонтёры</a></li>
+                <a class="btn btn-warning mx-3 px-5 py-2 text-white rounded-pill" asp-controller="User" asp-action="Login">Войти</a>
+            </ul>
+            <div class="text-end ps-3">
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+@RenderBody()
+
+<footer class="bg-dark text-white py-5 footer mt-auto">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h4 class="fw-bold mb-3">
+                    <img class="mx-2 align-middle" src="assets/logo.svg" width="30" height="30" alt="logo"/>
+                    <span class="align-middle">AnimalShelter</span>
+                </h4>
+                <p class="text-white-50 mb-4">
+                    Мы верим, что каждое животное заслуживает любви и заботы.
+                    Присоединяйтесь к нам в миссии дарить счастье нашим четвероногим друзьям.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-telegram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-youtube"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Навигация</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a asp-controller="Index" asp-action="Index" class="text-white-50 text-decoration-none">Главная</a></li>
+                    <li class="mb-2"><a asp-controller="Pets" asp-action="Index" class="text-white-50 text-decoration-none">Питомцы</a></li>
+                    <li class="mb-2"><a asp-controller="Index" asp-action="AboutUs" class="text-white-50 text-decoration-none">О нас</a></li>
+                    <li class="mb-2"><a asp-controller="Index" asp-action="HelpUs" class="text-white-50 text-decoration-none">Помочь</a></li>
+                    <li class="mb-2"><a asp-controller="Index" asp-action="ContactUs" class="text-white-50 text-decoration-none">Контакты</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Полезные ссылки</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a asp-controller="Index" asp-action="FAQ" class="text-white-50 text-decoration-none">FAQ</a></li>
+                    <li class="mb-2"><a asp-controller="Stories" asp-action="Index" class="text-white-50 text-decoration-none">Истории успеха</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h6 class="fw-bold mb-3">Поддержка</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a asp-controller="Index" asp-action="HelpUs" asp-fragment="requisites_section" class="text-white-50 text-decoration-none">Реквизиты для помощи</a></li>
+                    <li class="mb-2"><a asp-controller="Reports" asp-action="Index" class="text-white-50 text-decoration-none">Отчёты</a></li>
+                    <li class="mb-2"><a asp-controller="Partners" asp-action="Index" class="text-white-50 text-decoration-none">Партнёры</a></li>
+                    <li class="mb-2"><a asp-controller="Volunteer" asp-action="Gratitude" class="text-white-50 text-decoration-none">Благодарности</a></li>
                 </ul>
             </div>
         </div>
-    </nav>
-</header>
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2026 - ProfMasteringProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <hr class="my-4 border-secondary">
+
+        <div class="text-center text-white-50">
+            <p class="mb-0">2025 Приют «AnimalShelter». Все права защищены.
+            </p>
+        </div>
     </div>
 </footer>
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добрые Лапки — Администратор</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 270px;
+            --topbar-height: 64px;
+            --admin-primary: #6f42c1;
+            --admin-primary-light: #f3f0ff;
+        }
+
+        body { background: #f4f6fb; font-family: 'Segoe UI', sans-serif; }
+
+        /* SIDEBAR */
+        #sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: #1a1a2e;
+            position: fixed;
+            top: 0; left: 0; z-index: 1040;
+            transition: transform .3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        #sidebar .sidebar-brand {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        #sidebar .sidebar-brand .brand-icon {
+            width: 40px; height: 40px;
+            background: var(--admin-primary);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #fff;
+        }
+        #sidebar .sidebar-brand .brand-text { color: #fff; font-weight: 700; font-size: 1.1rem; }
+        #sidebar .sidebar-brand .brand-role {
+            font-size: .7rem; color: rgba(255,255,255,.4);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .sidebar-section {
+            padding: 16px 12px 4px;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,.3);
+            font-weight: 600;
+        }
+
+        .sidebar-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 16px;
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 1px 8px;
+            font-size: .9rem;
+            transition: all .2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .sidebar-link.active { background: var(--admin-primary); color: #fff; }
+        .sidebar-link .badge-count {
+            margin-left: auto;
+            background: #dc3545;
+            color: #fff;
+            font-size: .65rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+        }
+        .sidebar-link .badge-count.yellow { background: #ffc107; color: #000; }
+
+        /* TOPBAR */
+        #topbar {
+            position: fixed;
+            top: 0; left: var(--sidebar-width); right: 0;
+            height: var(--topbar-height);
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            z-index: 1030;
+            display: flex; align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+        }
+        #topbar .breadcrumb { margin: 0; font-size: .85rem; }
+        #topbar .breadcrumb-item.active { color: #6c757d; }
+        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+        .topbar-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            color: #6c757d;
+            transition: all .2s;
+        }
+        .topbar-btn:hover { background: #f8f9fa; color: #212529; }
+        .topbar-badge {
+            position: absolute; top: 4px; right: 4px;
+            width: 8px; height: 8px;
+            background: #dc3545; border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        .avatar-sm {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--admin-primary);
+            color: #fff; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .85rem; cursor: pointer;
+        }
+
+        /* MAIN */
+        #main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 28px;
+            min-height: calc(100vh - var(--topbar-height));
+        }
+
+        /* PAGE */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* CARDS */
+        .stat-card {
+            border-radius: 16px; border: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .stat-card .stat-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .content-card {
+            border-radius: 16px; border: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+
+        /* TABLE */
+        .table-hover tbody tr:hover { background: var(--admin-primary-light); }
+        .table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; color: #6c757d; font-weight: 600; border-top: 0; }
+
+        /* BADGES */
+        .badge-role-admin { background: #6f42c1; color: #fff; }
+        .badge-role-manager { background: #0d6efd; color: #fff; }
+        .badge-role-volunteer { background: #198754; color: #fff; }
+
+        /* CHART BAR */
+        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+        .bar-chart .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .bar-chart .bar {
+            width: 100%; border-radius: 6px 6px 0 0;
+            background: var(--admin-primary);
+            opacity: .8;
+            transition: opacity .2s;
+        }
+        .bar-chart .bar:hover { opacity: 1; }
+        .bar-chart .bar-label { font-size: .65rem; color: #6c757d; }
+
+        /* MINI CHART */
+        .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+        .sparkline .sp-bar { flex: 1; border-radius: 3px 3px 0 0; background: rgba(111,66,193,.3); }
+
+        /* OVERLAY */
+        #sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.5); z-index: 1039;
+        }
+
+        /* TOAST */
+        .toast-container { position: fixed; bottom: 24px; end: 24px; z-index: 9999; }
+
+        /* ANIMAL CARD */
+        .animal-card { border-radius: 16px; border: 0; box-shadow: 0 1px 4px rgba(0,0,0,.06); overflow: hidden; }
+        .animal-card img { height: 200px; object-fit: cover; }
+        .animal-card .status-dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+        }
+
+        /* TIMELINE */
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e9ecef; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -24px; top: 4px;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--admin-primary); border: 2px solid #fff;
+            box-shadow: 0 0 0 2px var(--admin-primary);
+        }
+
+        /* DB TABLE */
+        .db-table-card { border-radius: 12px; border: 0; box-shadow: 0 1px 4px rgba(0,0,0,.06); cursor: pointer; transition: all .2s; }
+        .db-table-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+        /* PROGRESS RING */
+        .progress-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .progress-ring svg { transform: rotate(-90deg); }
+        .progress-ring .ring-text { position: absolute; font-weight: 700; font-size: 1rem; }
+
+        /* MOBILE */
+        @media (max-width: 991px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #sidebar-overlay.open { display: block; }
+            #topbar { left: 0; }
+            #main { margin-left: 0; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+    <div class="sidebar-brand d-flex align-items-center gap-3">
+        <div class="brand-icon"><i class="bi bi-shield-check"></i></div>
+        <div>
+            <div class="brand-text">Добрые Лапки</div>
+            <div class="brand-role">Администратор</div>
+        </div>
+    </div>
+
+    <div class="py-2">
+        <div class="sidebar-section">Основное</div>
+        <a class="sidebar-link active" onclick="showPage('dashboard')">
+            <i class="bi bi-speedometer2"></i> Дашборд
+        </a>
+
+        <div class="sidebar-section">Заявки</div>
+        <a class="sidebar-link" onclick="showPage('applications')">
+            <i class="bi bi-person-plus"></i> Заявки волонтёров
+            <span class="badge-count">7</span>
+        </a>
+
+        <div class="sidebar-section">Пользователи</div>
+        <a class="sidebar-link" onclick="showPage('users')">
+            <i class="bi bi-people"></i> Все пользователи
+        </a>
+        <a class="sidebar-link" onclick="showPage('managers')">
+            <i class="bi bi-person-badge"></i> Менеджеры
+        </a>
+
+        <div class="sidebar-section">Группы</div>
+        <a class="sidebar-link" onclick="showPage('groups')">
+            <i class="bi bi-diagram-3"></i> Группы волонтёров
+        </a>
+
+        <div class="sidebar-section">Аналитика</div>
+        <a class="sidebar-link" onclick="showPage('analytics')">
+            <i class="bi bi-graph-up"></i> Общая аналитика
+        </a>
+        <a class="sidebar-link" onclick="showPage('analytics-groups')">
+            <i class="bi bi-bar-chart-steps"></i> По группам
+        </a>
+        <a class="sidebar-link" onclick="showPage('analytics-period')">
+            <i class="bi bi-calendar-range"></i> По периоду
+        </a>
+
+        <div class="sidebar-section">Животные</div>
+        <a class="sidebar-link" onclick="showPage('animals')">
+            <i class="bi bi-heart"></i> Все животные
+        </a>
+        <a class="sidebar-link" onclick="showPage('animals-new')">
+            <i class="bi bi-plus-circle"></i> Добавить животное
+        </a>
+        <a class="sidebar-link" onclick="showPage('animals-categories')">
+            <i class="bi bi-tags"></i> Категории и теги
+        </a>
+
+        <div class="sidebar-section">База данных</div>
+        <a class="sidebar-link" onclick="showPage('db-overview')">
+            <i class="bi bi-database"></i> Обзор БД
+        </a>
+        <a class="sidebar-link" onclick="showPage('db-tables')">
+            <i class="bi bi-table"></i> Таблицы
+        </a>
+        <a class="sidebar-link" onclick="showPage('db-logs')">
+            <i class="bi bi-file-text"></i> Логи изменений
+        </a>
+        <a class="sidebar-link" onclick="showPage('db-backup')">
+            <i class="bi bi-cloud-download"></i> Резервные копии
+        </a>
+
+        <div class="sidebar-section">Прочее</div>
+        <a class="sidebar-link" onclick="showPage('profile')">
+            <i class="bi bi-person-circle"></i> Мой профиль
+        </a>
+        <a class="sidebar-link" onclick="showPage('settings')">
+            <i class="bi bi-gear"></i> Настройки системы
+        </a>
+    </div>
+</div>
+
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+    <button class="topbar-btn d-lg-none" onclick="openSidebar()">
+        <i class="bi bi-list fs-5"></i>
+    </button>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" id="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Главная</a></li>
+            <li class="breadcrumb-item active" id="breadcrumb-current">Дашборд</li>
+        </ol>
+    </nav>
+    <div class="topbar-right">
+        <div class="topbar-btn" onclick="showPage('applications')">
+            <i class="bi bi-person-plus"></i>
+            <span class="topbar-badge"></span>
+        </div>
+        <div class="topbar-btn">
+            <i class="bi bi-bell"></i>
+            <span class="topbar-badge"></span>
+        </div>
+        <div class="avatar-sm" onclick="showPage('profile')" title="Мой профиль">АД</div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Добро пожаловать, Алексей 👋</h4>
+                <p class="text-muted mb-0 small">Сегодня <span id="today-date"></span> · Всё под контролем</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('analytics')">
+                    <i class="bi bi-graph-up me-1"></i>Аналитика
+                </button>
+                <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)" onclick="showPage('applications')">
+                    <i class="bi bi-person-plus me-1"></i>Заявки <span class="badge bg-danger ms-1">7</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert alert-warning border-0 rounded-3 d-flex align-items-center gap-3 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            <div><strong>7 новых заявок</strong> от волонтёров ожидают рассмотрения.
+                <a href="#" class="alert-link" onclick="showPage('applications')">Рассмотреть →</a>
+            </div>
+            <button type="button" class="btn-close ms-auto"></button>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people-fill"></i></div>
+                        <span class="badge bg-success-subtle text-success rounded-pill small">+12 за месяц</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">248</h2>
+                    <p class="text-muted mb-2 small">Пользователей</p>
+                    <div class="sparkline">
+                        <div class="sp-bar" style="height:60%"></div><div class="sp-bar" style="height:40%"></div>
+                        <div class="sp-bar" style="height:70%"></div><div class="sp-bar" style="height:50%"></div>
+                        <div class="sp-bar" style="height:80%"></div><div class="sp-bar" style="height:90%"></div>
+                        <div class="sp-bar" style="height:100%; background:rgba(13,110,253,.6)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check2-circle"></i></div>
+                        <span class="badge bg-success-subtle text-success rounded-pill small">+34 за месяц</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">1 240</h2>
+                    <p class="text-muted mb-2 small">Задач выполнено</p>
+                    <div class="sparkline">
+                        <div class="sp-bar" style="height:50%"></div><div class="sp-bar" style="height:65%"></div>
+                        <div class="sp-bar" style="height:55%"></div><div class="sp-bar" style="height:80%"></div>
+                        <div class="sp-bar" style="height:70%"></div><div class="sp-bar" style="height:60%"></div>
+                        <div class="sp-bar" style="height:100%; background:rgba(25,135,84,.6)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-heart-fill"></i></div>
+                        <span class="badge bg-warning-subtle text-warning rounded-pill small">+8 за месяц</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">87</h2>
+                    <p class="text-muted mb-2 small">Животных в приюте</p>
+                    <div class="sparkline">
+                        <div class="sp-bar" style="height:80%"></div><div class="sp-bar" style="height:75%"></div>
+                        <div class="sp-bar" style="height:85%"></div><div class="sp-bar" style="height:70%"></div>
+                        <div class="sp-bar" style="height:90%"></div><div class="sp-bar" style="height:95%"></div>
+                        <div class="sp-bar" style="height:100%; background:rgba(255,193,7,.6)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="stat-icon" style="background:var(--admin-primary-light); color:var(--admin-primary)"><i class="bi bi-house-heart-fill"></i></div>
+                        <span class="badge bg-success-subtle text-success rounded-pill small">+5 за месяц</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">523</h2>
+                    <p class="text-muted mb-2 small">Животных пристроено</p>
+                    <div class="sparkline">
+                        <div class="sp-bar" style="height:30%"></div><div class="sp-bar" style="height:50%"></div>
+                        <div class="sp-bar" style="height:45%"></div><div class="sp-bar" style="height:70%"></div>
+                        <div class="sp-bar" style="height:65%"></div><div class="sp-bar" style="height:85%"></div>
+                        <div class="sp-bar" style="height:100%; background:rgba(111,66,193,.6)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Activity chart -->
+            <div class="col-lg-8">
+                <div class="card content-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold mb-0">Активность по месяцам</h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active rounded-start-pill">Задачи</button>
+                            <button class="btn btn-outline-secondary">Отчёты</button>
+                            <button class="btn btn-outline-secondary rounded-end-pill">Пользователи</button>
+                        </div>
+                    </div>
+                    <div class="bar-chart">
+                        <div class="bar-col"><div class="bar" style="height:45%"></div><div class="bar-label">Янв</div></div>
+                        <div class="bar-col"><div class="bar" style="height:60%"></div><div class="bar-label">Фев</div></div>
+                        <div class="bar-col"><div class="bar" style="height:50%"></div><div class="bar-label">Мар</div></div>
+                        <div class="bar-col"><div class="bar" style="height:75%"></div><div class="bar-label">Апр</div></div>
+                        <div class="bar-col"><div class="bar" style="height:65%"></div><div class="bar-label">Май</div></div>
+                        <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-label">Июн</div></div>
+                        <div class="bar-col"><div class="bar" style="height:70%"></div><div class="bar-label">Июл</div></div>
+                        <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-label">Авг</div></div>
+                        <div class="bar-col"><div class="bar" style="height:85%"></div><div class="bar-label">Сен</div></div>
+                        <div class="bar-col"><div class="bar" style="height:95%"></div><div class="bar-label">Окт</div></div>
+                        <div class="bar-col"><div class="bar" style="height:100%; opacity:1; background:#ffc107"></div><div class="bar-label">Ноя</div></div>
+                        <div class="bar-col"><div class="bar" style="height:30%; background:#dee2e6"></div><div class="bar-label">Дек</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="col-lg-4">
+                <div class="card content-card p-4 h-100">
+                    <h6 class="fw-bold mb-4">Состав системы</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge badge-role-volunteer">Волонтёры</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold">220</span>
+                            <span class="text-muted small">89%</span>
+                        </div>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px">
+                        <div class="progress-bar bg-success" style="width:89%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge badge-role-manager">Менеджеры</span>
+                        <div><span class="fw-bold">22</span> <span class="text-muted small">9%</span></div>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px">
+                        <div class="progress-bar bg-primary" style="width:9%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge badge-role-admin">Администраторы</span>
+                        <div><span class="fw-bold">6</span> <span class="text-muted small">2%</span></div>
+                    </div>
+                    <div class="progress mb-4" style="height: 6px">
+                        <div class="progress-bar" style="width:2%; background:var(--admin-primary)"></div>
+                    </div>
+                    <hr>
+                    <div class="row text-center g-2 mt-1">
+                        <div class="col-6">
+                            <div class="p-2 rounded-3" style="background:var(--admin-primary-light)">
+                                <div class="fw-bold" style="color:var(--admin-primary)">6</div>
+                                <div class="text-muted small">Групп</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded-3 bg-warning-subtle">
+                                <div class="fw-bold text-warning">7</div>
+                                <div class="text-muted small">Заявок</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent applications & Recent users -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Новые заявки</h6>
+                        <a href="#" class="small text-decoration-none" style="color:var(--admin-primary)" onclick="showPage('applications')">Все заявки →</a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 py-3 border-0 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm" style="background:#6f42c1">МА</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold small">Мария Антонова</div>
+                                    <div class="text-muted" style="font-size:.75rem">Группа «Кошки» · 15 мин назад</div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-success btn-sm rounded-pill px-3" onclick="showToast('Заявка одобрена', 'success')">Одобрить</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-3 border-0 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm" style="background:#0d6efd">СК</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold small">Сергей Козлов</div>
+                                    <div class="text-muted" style="font-size:.75rem">Группа «Собаки» · 1 ч назад</div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-success btn-sm rounded-pill px-3" onclick="showToast('Заявка одобрена', 'success')">Одобрить</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-3 border-0">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm" style="background:#198754">ПВ</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold small">Полина Васильева</div>
+                                    <div class="text-muted" style="font-size:.75rem">Группа «Выезды» · 3 ч назад</div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-success btn-sm rounded-pill px-3" onclick="showToast('Заявка одобрена', 'success')">Одобрить</button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Последние действия</h6>
+                        <a href="#" class="small text-decoration-none" style="color:var(--admin-primary)" onclick="showPage('db-logs')">Все логи →</a>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="fw-semibold small">Новый пользователь зарегистрирован</div>
+                            <div class="text-muted" style="font-size:.75rem">Анна Смирнова добавлена как волонтёр · 20 мин</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="fw-semibold small">Группа изменена</div>
+                            <div class="text-muted" style="font-size:.75rem">Менеджер Петров переназначил 3 волонтёров · 1 ч</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="fw-semibold small">Животное пристроено</div>
+                            <div class="text-muted" style="font-size:.75rem">Кот Барсик (ID #45) нашёл семью · 2 ч</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="fw-semibold small">Резервная копия создана</div>
+                            <div class="text-muted" style="font-size:.75rem">Автоматический бэкап БД · 6 ч</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="fw-semibold small">Отчёт одобрен</div>
+                            <div class="text-muted" style="font-size:.75rem">Менеджер Иванова одобрила отчёт #234 · 8 ч</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== APPLICATIONS ===== -->
+    <div class="page" id="page-applications">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Заявки волонтёров</h4>
+                <p class="text-muted mb-0 small">7 новых заявок ожидают рассмотрения</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-success btn-sm rounded-pill" onclick="showToast('Все заявки одобрены', 'success')">
+                    <i class="bi bi-check2-all me-1"></i>Одобрить все
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="bi bi-download me-1"></i>Экспорт
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card content-card p-3 mb-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="🔍 Поиск по имени или email...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Все группы</option>
+                        <option>Кошки</option>
+                        <option>Собаки</option>
+                        <option>Выезды</option>
+                        <option>Уборка</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Все статусы</option>
+                        <option selected>Ожидание</option>
+                        <option>Одобрены</option>
+                        <option>Отклонены</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100 rounded-pill">Сбросить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-pills mb-4 gap-1">
+            <li class="nav-item"><a class="nav-link active rounded-pill" href="#">Ожидание <span class="badge bg-danger ms-1">7</span></a></li>
+            <li class="nav-item"><a class="nav-link rounded-pill text-muted" href="#">Одобрены <span class="badge bg-light text-dark ms-1">48</span></a></li>
+            <li class="nav-item"><a class="nav-link rounded-pill text-muted" href="#">Отклонены <span class="badge bg-light text-dark ms-1">12</span></a></li>
+        </ul>
+
+        <div class="row g-3">
+            <!-- Application cards -->
+            <div class="col-12" id="app-list">
+                <!-- App item -->
+                <div class="card content-card mb-3">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center g-3">
+                            <div class="col-auto">
+                                <div class="avatar-sm fs-5" style="width:52px;height:52px;border-radius:14px;background:#6f42c1">МА</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">Мария Антонова</div>
+                                <div class="text-muted small">maria.ant@mail.ru</div>
+                                <div class="text-muted small"><i class="bi bi-telephone me-1"></i>+7 (999) 111-22-33</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Желаемая группа</div>
+                                <span class="badge bg-warning-subtle text-warning">Кошки 🐱</span>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Опыт</div>
+                                <div class="small">2 года с животными</div>
+                            </div>
+                            <div class="col-md-1 text-center">
+                                <div class="text-muted small">Подана</div>
+                                <div class="small fw-semibold">15 мин</div>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2 justify-content-end">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="showPage('application-detail')">
+                                    <i class="bi bi-eye me-1"></i>Просмотр
+                                </button>
+                                <button class="btn btn-success btn-sm rounded-pill" onclick="showToast('Заявка одобрена', 'success')">
+                                    <i class="bi bi-check2 me-1"></i>Одобрить
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="showToast('Заявка отклонена', 'danger')">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card content-card mb-3">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center g-3">
+                            <div class="col-auto">
+                                <div class="avatar-sm fs-5" style="width:52px;height:52px;border-radius:14px;background:#0d6efd">СК</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">Сергей Козлов</div>
+                                <div class="text-muted small">s.kozlov@gmail.com</div>
+                                <div class="text-muted small"><i class="bi bi-telephone me-1"></i>+7 (999) 222-33-44</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Желаемая группа</div>
+                                <span class="badge bg-primary-subtle text-primary">Собаки 🐕</span>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Опыт</div>
+                                <div class="small">Нет опыта</div>
+                            </div>
+                            <div class="col-md-1 text-center">
+                                <div class="text-muted small">Подана</div>
+                                <div class="small fw-semibold">1 ч</div>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2 justify-content-end">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="showPage('application-detail')">
+                                    <i class="bi bi-eye me-1"></i>Просмотр
+                                </button>
+                                <button class="btn btn-success btn-sm rounded-pill" onclick="showToast('Заявка одобрена', 'success')">
+                                    <i class="bi bi-check2 me-1"></i>Одобрить
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="showToast('Заявка отклонена', 'danger')">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card content-card mb-3">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center g-3">
+                            <div class="col-auto">
+                                <div class="avatar-sm fs-5" style="width:52px;height:52px;border-radius:14px;background:#198754">ПВ</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="fw-bold">Полина Васильева</div>
+                                <div class="text-muted small">p.vasilyeva@yandex.ru</div>
+                                <div class="text-muted small"><i class="bi bi-telephone me-1"></i>+7 (999) 333-44-55</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Желаемая группа</div>
+                                <span class="badge bg-info-subtle text-info">Выезды 🚗</span>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-muted small mb-1">Опыт</div>
+                                <div class="small">1 год волонтёрства</div>
+                            </div>
+                            <div class="col-md-1 text-center">
+                                <div class="text-muted small">Подана</div>
+                                <div class="small fw-semibold">3 ч</div>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2 justify-content-end">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="showPage('application-detail')">
+                                    <i class="bi bi-eye me-1"></i>Просмотр
+                                </button>
+                                <button class="btn btn-success btn-sm rounded-pill" onclick="showToast('Заявка одобрена', 'success')">
+                                    <i class="bi bi-check2 me-1"></i>Одобрить
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="showToast('Заявка отклонена', 'danger')">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== APPLICATION DETAIL ===== -->
+    <div class="page" id="page-application-detail">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('applications')">
+                <i class="bi bi-arrow-left me-1"></i>Назад
+            </button>
+            <div>
+                <h4 class="fw-bold mb-0">Заявка #7 — Мария Антонова</h4>
+                <p class="text-muted mb-0 small">Получена 15 минут назад</p>
+            </div>
+            <span class="badge bg-warning text-dark ms-2">На рассмотрении</span>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Личные данные</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="text-muted small">Полное имя</label><div class="fw-semibold">Мария Антонова</div></div>
+                        <div class="col-md-6"><label class="text-muted small">Email</label><div class="fw-semibold">maria.ant@mail.ru</div></div>
+                        <div class="col-md-6"><label class="text-muted small">Телефон</label><div class="fw-semibold">+7 (999) 111-22-33</div></div>
+                        <div class="col-md-6"><label class="text-muted small">Дата рождения</label><div class="fw-semibold">12.03.1996 (28 лет)</div></div>
+                        <div class="col-md-6"><label class="text-muted small">Город</label><div class="fw-semibold">Москва</div></div>
+                        <div class="col-md-6"><label class="text-muted small">Желаемая группа</label><div><span class="badge bg-warning-subtle text-warning">Кошки 🐱</span></div></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Мотивационное письмо</h6>
+                    <p class="text-muted">Я очень люблю кошек и хочу помочь приюту. У меня есть две кошки дома, и я понимаю, как важно правильно за ними ухаживать. Готова приходить по выходным и помогать с кормлением, уборкой и социализацией животных. Имею опыт волонтёрства в других некоммерческих организациях около 2 лет.</p>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Доступность</h6>
+                    <div class="row g-2">
+                        <div class="col-auto"><span class="badge bg-success-subtle text-success px-3 py-2">Суббота</span></div>
+                        <div class="col-auto"><span class="badge bg-success-subtle text-success px-3 py-2">Воскресенье</span></div>
+                        <div class="col-auto"><span class="badge bg-secondary-subtle text-secondary px-3 py-2">Среда (вечер)</span></div>
+                    </div>
+                    <div class="mt-3 text-muted small">Часы: 10:00 – 18:00 · ~8 часов в неделю</div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Решение</h6>
+                    <div class="mb-3">
+                        <label class="form-label small">Назначить группу</label>
+                        <select class="form-select">
+                            <option selected>Кошки 🐱</option>
+                            <option>Собаки 🐕</option>
+                            <option>Выезды 🚗</option>
+                            <option>Уборка 🧹</option>
+                            <option>Фото/видео 📷</option>
+                            <option>Административная</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Назначить менеджера</label>
+                        <select class="form-select">
+                            <option>Иванова Е.А.</option>
+                            <option>Петров С.В.</option>
+                            <option>Николаева М.Р.</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Комментарий (необязательно)</label>
+                        <textarea class="form-control" rows="3" placeholder="Пояснение для волонтёра..."></textarea>
+                    </div>
+                    <button class="btn btn-success w-100 rounded-pill mb-2" onclick="showToast('Заявка одобрена! Пользователь получит уведомление.', 'success'); showPage('applications')">
+                        <i class="bi bi-check2-circle me-2"></i>Одобрить заявку
+                    </button>
+                    <button class="btn btn-outline-danger w-100 rounded-pill" onclick="showToast('Заявка отклонена', 'danger'); showPage('applications')">
+                        <i class="bi bi-x-circle me-2"></i>Отклонить
+                    </button>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Документы</h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex align-items-center gap-2 border-0">
+                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                            <span class="small">Паспорт (копия).pdf</span>
+                            <a href="#" class="ms-auto small text-decoration-none">Скачать</a>
+                        </div>
+                        <div class="list-group-item px-0 d-flex align-items-center gap-2 border-0">
+                            <i class="bi bi-file-earmark-image text-primary"></i>
+                            <span class="small">Фото.jpg</span>
+                            <a href="#" class="ms-auto small text-decoration-none">Скачать</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== USERS ===== -->
+    <div class="page" id="page-users">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Все пользователи</h4>
+                <p class="text-muted mb-0 small">248 пользователей в системе</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-download me-1"></i>Экспорт</button>
+                <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)">
+                    <i class="bi bi-person-plus me-1"></i>Добавить
+                </button>
+            </div>
+        </div>
+
+        <div class="card content-card p-3 mb-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="🔍 Поиск по имени, email...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Все роли</option>
+                        <option>Волонтёр</option>
+                        <option>Менеджер</option>
+                        <option>Администратор</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Все группы</option>
+                        <option>Кошки</option>
+                        <option>Собаки</option>
+                        <option>Выезды</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Любой статус</option>
+                        <option>Активен</option>
+                        <option>Заблокирован</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100 rounded-pill">Сбросить</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4"><input type="checkbox" class="form-check-input"></th>
+                            <th>Пользователь</th>
+                            <th>Роль</th>
+                            <th>Группа</th>
+                            <th>Задачи</th>
+                            <th>Последний вход</th>
+                            <th>Статус</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4"><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-sm" style="width:34px;height:34px;border-radius:8px;background:#198754;font-size:.75rem">АС</div>
+                                    <div>
+                                        <div class="fw-semibold small">Анна Смирнова</div>
+                                        <div class="text-muted" style="font-size:.72rem">anna@mail.ru</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-role-volunteer">Волонтёр</span></td>
+                            <td><span class="small">Кошки 🐱</span></td>
+                            <td><span class="small fw-semibold">24</span></td>
+                            <td><span class="small text-muted">Сегодня</span></td>
+                            <td><span class="badge bg-success-subtle text-success">Активен</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-edit')"><i class="bi bi-pencil"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item text-warning" href="#"><i class="bi bi-lock me-2"></i>Заблокировать</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4"><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-sm" style="width:34px;height:34px;border-radius:8px;background:#0d6efd;font-size:.75rem">ИП</div>
+                                    <div>
+                                        <div class="fw-semibold small">Иван Петров</div>
+                                        <div class="text-muted" style="font-size:.72rem">ivan.p@gmail.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-role-manager">Менеджер</span></td>
+                            <td><span class="small">Собаки 🐕</span></td>
+                            <td><span class="small fw-semibold">87</span></td>
+                            <td><span class="small text-muted">Вчера</span></td>
+                            <td><span class="badge bg-success-subtle text-success">Активен</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-edit')"><i class="bi bi-pencil"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item text-warning" href="#"><i class="bi bi-lock me-2"></i>Заблокировать</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4"><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-sm" style="width:34px;height:34px;border-radius:8px;background:#dc3545;font-size:.75rem">НС</div>
+                                    <div>
+                                        <div class="fw-semibold small">Никита Соколов</div>
+                                        <div class="text-muted" style="font-size:.72rem">n.sokolov@mail.ru</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-role-volunteer">Волонтёр</span></td>
+                            <td><span class="small">Выезды 🚗</span></td>
+                            <td><span class="small fw-semibold">11</span></td>
+                            <td><span class="small text-muted">5 дней назад</span></td>
+                            <td><span class="badge bg-danger-subtle text-danger">Заблокирован</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-edit')"><i class="bi bi-pencil"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item text-success" href="#"><i class="bi bi-unlock me-2"></i>Разблокировать</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center px-4 py-3">
+                <span class="text-muted small">Показано 1–20 из 248</span>
+                <nav><ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">‹</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">›</a></li>
+                </ul></nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== USER DETAIL ===== -->
+    <div class="page" id="page-user-detail">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('users')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Профиль пользователя</h4>
+            <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('user-edit')"><i class="bi bi-pencil me-1"></i>Редактировать</button>
+                <button class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-lock me-1"></i>Заблокировать</button>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card content-card p-4 text-center mb-4">
+                    <div class="avatar-sm mx-auto mb-3" style="width:80px;height:80px;border-radius:20px;font-size:2rem;background:#198754">АС</div>
+                    <h5 class="fw-bold">Анна Смирнова</h5>
+                    <p class="text-muted small mb-2">anna@mail.ru</p>
+                    <span class="badge badge-role-volunteer mb-3">Волонтёр</span>
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <span class="badge bg-warning-subtle text-warning">Кошки 🐱</span>
+                        <span class="badge bg-success-subtle text-success">Активна</span>
+                    </div>
+                    <div class="row text-center g-2">
+                        <div class="col-4"><div class="fw-bold text-warning">24</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">120</div><div class="text-muted" style="font-size:.72rem">Часов</div></div>
+                        <div class="col-4"><div class="fw-bold" style="color:var(--admin-primary)">4.8</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Изменить роль</h6>
+                    <select class="form-select mb-3">
+                        <option selected>Волонтёр</option>
+                        <option>Менеджер</option>
+                        <option>Администратор</option>
+                    </select>
+                    <select class="form-select mb-3">
+                        <option selected>Кошки 🐱</option>
+                        <option>Собаки 🐕</option>
+                        <option>Выезды 🚗</option>
+                    </select>
+                    <button class="btn w-100 rounded-pill text-white" style="background:var(--admin-primary)" onclick="showToast('Роль обновлена', 'success')">
+                        <i class="bi bi-check2 me-1"></i>Сохранить
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">История задач</h6>
+                    <table class="table table-sm">
+                        <thead><tr><th>Задача</th><th>Статус</th><th>Завершена</th><th>Оценка</th></tr></thead>
+                        <tbody>
+                            <tr><td class="small">Кормление кошек (блок A)</td><td><span class="badge bg-success-subtle text-success">Выполнена</span></td><td class="small text-muted">15.11.2024</td><td>⭐ 5.0</td></tr>
+                            <tr><td class="small">Уборка вольеров</td><td><span class="badge bg-success-subtle text-success">Выполнена</span></td><td class="small text-muted">10.11.2024</td><td>⭐ 4.5</td></tr>
+                            <tr><td class="small">Социализация котят</td><td><span class="badge bg-primary-subtle text-primary">В работе</span></td><td class="small text-muted">—</td><td>—</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Лог активности</h6>
+                    <div class="timeline">
+                        <div class="timeline-item"><div class="fw-semibold small">Вход в систему</div><div class="text-muted" style="font-size:.75rem">Сегодня, 09:45</div></div>
+                        <div class="timeline-item"><div class="fw-semibold small">Отчёт #45 сдан</div><div class="text-muted" style="font-size:.75rem">14.11.2024, 16:30</div></div>
+                        <div class="timeline-item"><div class="fw-semibold small">Задача взята в работу</div><div class="text-muted" style="font-size:.75rem">14.11.2024, 10:00</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== USER EDIT ===== -->
+    <div class="page" id="page-user-edit">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Редактирование пользователя</h4>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Личные данные</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label small">Имя</label><input class="form-control" value="Анна"></div>
+                        <div class="col-md-6"><label class="form-label small">Фамилия</label><input class="form-control" value="Смирнова"></div>
+                        <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" value="anna@mail.ru"></div>
+                        <div class="col-md-6"><label class="form-label small">Телефон</label><input class="form-control" value="+7 (999) 111-22-33"></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Роль и группа</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Роль в системе</label>
+                            <select class="form-select">
+                                <option selected>Волонтёр</option>
+                                <option>Менеджер</option>
+                                <option>Администратор</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Группа</label>
+                            <select class="form-select">
+                                <option selected>Кошки 🐱</option>
+                                <option>Собаки 🐕</option>
+                                <option>Выезды 🚗</option>
+                                <option>Уборка 🧹</option>
+                                <option>Фото/видео 📷</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Статус аккаунта</label>
+                            <select class="form-select">
+                                <option selected>Активен</option>
+                                <option>Заблокирован</option>
+                                <option>Удалён</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Куратор (менеджер)</label>
+                            <select class="form-select">
+                                <option selected>Иванова Е.А.</option>
+                                <option>Петров С.В.</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning text-white rounded-pill px-4" onclick="showToast('Изменения сохранены', 'success'); showPage('user-detail')">
+                        <i class="bi bi-check2 me-1"></i>Сохранить
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill" onclick="showPage('user-detail')">Отмена</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-danger p-4">
+                    <h6 class="fw-bold text-danger mb-3"><i class="bi bi-exclamation-triangle me-2"></i>Опасная зона</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-warning rounded-pill" onclick="showToast('Пользователь заблокирован', 'warning')">
+                            <i class="bi bi-lock me-1"></i>Заблокировать
+                        </button>
+                        <button class="btn btn-outline-danger rounded-pill">
+                            <i class="bi bi-trash me-1"></i>Удалить аккаунт
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GROUPS ===== -->
+    <div class="page" id="page-groups">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Группы волонтёров</h4>
+                <p class="text-muted mb-0 small">6 активных групп</p>
+            </div>
+            <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)">
+                <i class="bi bi-plus-lg me-1"></i>Создать группу
+            </button>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning fs-3">🐱</div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Кошки</h6>
+                            <div class="text-muted small">Уход за кошками</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">38</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">142</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.7</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#0d6efd;font-size:.65rem">ИЕ</div>
+                        <span class="text-muted small">Менеджер: Иванова Е.А.</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px">
+                        <div class="progress-bar bg-warning" style="width:78%"></div>
+                    </div>
+                    <div class="text-muted small mt-1">Нагрузка: 78%</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary fs-3">🐕</div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Собаки</h6>
+                            <div class="text-muted small">Уход за собаками</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">52</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">210</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.9</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#198754;font-size:.65rem">ПС</div>
+                        <span class="text-muted small">Менеджер: Петров С.В.</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px">
+                        <div class="progress-bar bg-danger" style="width:95%"></div>
+                    </div>
+                    <div class="text-muted small mt-1">Нагрузка: 95% <span class="text-danger">— высокая</span></div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-info bg-opacity-10 text-info fs-3">🚗</div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Выезды</h6>
+                            <div class="text-muted small">Транспорт и выезды</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">18</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">67</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.5</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#dc3545;font-size:.65rem">НМ</div>
+                        <span class="text-muted small">Менеджер: Николаева М.Р.</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px">
+                        <div class="progress-bar bg-success" style="width:45%"></div>
+                    </div>
+                    <div class="text-muted small mt-1">Нагрузка: 45%</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-secondary bg-opacity-10 text-secondary fs-3">🧹</div>
+                        <div><h6 class="fw-bold mb-0">Уборка</h6><div class="text-muted small">Хоз. работы</div></div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">24</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">98</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.6</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#6f42c1;font-size:.65rem">КО</div>
+                        <span class="text-muted small">Менеджер: Козлов О.Д.</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px"><div class="progress-bar bg-warning" style="width:60%"></div></div>
+                    <div class="text-muted small mt-1">Нагрузка: 60%</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger fs-3">📷</div>
+                        <div><h6 class="fw-bold mb-0">Фото/видео</h6><div class="text-muted small">Медиаконтент</div></div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">12</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">44</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.8</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#fd7e14;font-size:.65rem">ВА</div>
+                        <span class="text-muted small">Менеджер: Волков А.С.</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px"><div class="progress-bar bg-success" style="width:38%"></div></div>
+                    <div class="text-muted small mt-1">Нагрузка: 38%</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4 h-100" style="cursor:pointer" onclick="showPage('group-detail')">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success fs-3">🏥</div>
+                        <div><h6 class="fw-bold mb-0">Вет. помощь</h6><div class="text-muted small">Мед. поддержка</div></div>
+                        <span class="badge bg-warning-subtle text-warning ms-auto">Неполная</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">8</div><div class="text-muted" style="font-size:.72rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">29</div><div class="text-muted" style="font-size:.72rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.9</div><div class="text-muted" style="font-size:.72rem">Рейтинг</div></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-sm" style="width:28px;height:28px;border-radius:8px;background:#20c997;font-size:.65rem">БЛ</div>
+                        <span class="text-muted small">Менеджер: вакансия</span>
+                    </div>
+                    <div class="progress mt-3" style="height:6px"><div class="progress-bar bg-info" style="width:25%"></div></div>
+                    <div class="text-muted small mt-1">Нагрузка: 25%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GROUP DETAIL ===== -->
+    <div class="page" id="page-group-detail">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('groups')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Группа «Кошки» 🐱</h4>
+            <span class="badge bg-success-subtle text-success">Активна</span>
+            <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-pencil me-1"></i>Редактировать</button>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Участники группы (38)</h6>
+                        <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)"><i class="bi bi-person-plus me-1"></i>Добавить</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead><tr><th>Волонтёр</th><th>Задач</th><th>Рейтинг</th><th>Нагрузка</th><th></th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="d-flex align-items-center gap-2"><div class="avatar-sm" style="width:28px;height:28px;border-radius:6px;font-size:.65rem;background:#198754">АС</div><span class="small">Анна Смирнова</span></div></td>
+                                    <td><span class="small fw-semibold">24</span></td>
+                                    <td><span class="small">⭐ 4.8</span></td>
+                                    <td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-warning" style="width:70%"></div></div></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="d-flex align-items-center gap-2"><div class="avatar-sm" style="width:28px;height:28px;border-radius:6px;font-size:.65rem;background:#0d6efd">МП</div><span class="small">Марина Попова</span></div></td>
+                                    <td><span class="small fw-semibold">18</span></td>
+                                    <td><span class="small">⭐ 4.6</span></td>
+                                    <td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-success" style="width:45%"></div></div></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="d-flex align-items-center gap-2"><div class="avatar-sm" style="width:28px;height:28px;border-radius:6px;font-size:.65rem;background:#dc3545">ОН</div><span class="small">Олег Новиков</span></div></td>
+                                    <td><span class="small fw-semibold">31</span></td>
+                                    <td><span class="small">⭐ 5.0</span></td>
+                                    <td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-danger" style="width:92%"></div></div></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="showPage('user-detail')"><i class="bi bi-eye"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Статистика группы по месяцам</h6>
+                    <div class="bar-chart">
+                        <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">Янв</div></div>
+                        <div class="bar-col"><div class="bar" style="height:70%"></div><div class="bar-label">Фев</div></div>
+                        <div class="bar-col"><div class="bar" style="height:60%"></div><div class="bar-label">Мар</div></div>
+                        <div class="bar-col"><div class="bar" style="height:85%"></div><div class="bar-label">Апр</div></div>
+                        <div class="bar-col"><div class="bar" style="height:75%"></div><div class="bar-label">Май</div></div>
+                        <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-label">Июн</div></div>
+                        <div class="bar-col"><div class="bar" style="height:100%; opacity:1; background:#ffc107"></div><div class="bar-label">Ноя</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Информация</h6>
+                    <div class="mb-2"><span class="text-muted small">Менеджер</span><div class="fw-semibold small">Иванова Елена Андреевна</div></div>
+                    <div class="mb-2"><span class="text-muted small">Создана</span><div class="fw-semibold small">12 января 2020</div></div>
+                    <div class="mb-2"><span class="text-muted small">Описание</span><div class="text-muted small">Уход за кошками: кормление, уборка, социализация</div></div>
+                    <hr>
+                    <div class="row text-center g-2">
+                        <div class="col-6"><div class="fw-bold text-warning fs-5">38</div><div class="text-muted small">Участников</div></div>
+                        <div class="col-6"><div class="fw-bold text-success fs-5">142</div><div class="text-muted small">Задач</div></div>
+                        <div class="col-6"><div class="fw-bold" style="color:var(--admin-primary); font-size:1.2rem">4.7</div><div class="text-muted small">Рейтинг</div></div>
+                        <div class="col-6"><div class="fw-bold text-info fs-5">820</div><div class="text-muted small">Часов</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MANAGERS ===== -->
+    <div class="page" id="page-managers">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Менеджеры</h4>
+                <p class="text-muted mb-0 small">22 менеджера в системе</p>
+            </div>
+            <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)">
+                <i class="bi bi-person-plus me-1"></i>Добавить менеджера
+            </button>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="avatar-sm" style="width:52px;height:52px;border-radius:14px;background:#0d6efd;font-size:1.2rem">ИЕ</div>
+                        <div>
+                            <div class="fw-bold">Иванова Елена</div>
+                            <div class="text-muted small">Группа: Кошки 🐱</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">38</div><div class="text-muted" style="font-size:.7rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">142</div><div class="text-muted" style="font-size:.7rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.7</div><div class="text-muted" style="font-size:.7rem">Рейтинг</div></div>
+                    </div>
+                    <div class="progress mb-2" style="height:6px">
+                        <div class="progress-bar" style="width:78%;background:var(--admin-primary)"></div>
+                    </div>
+                    <div class="text-muted small mb-3">Эффективность: 78%</div>
+                    <button class="btn btn-outline-secondary btn-sm w-100 rounded-pill" onclick="showPage('manager-analytics')">
+                        <i class="bi bi-graph-up me-1"></i>Аналитика
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="avatar-sm" style="width:52px;height:52px;border-radius:14px;background:#198754;font-size:1.2rem">ПС</div>
+                        <div>
+                            <div class="fw-bold">Петров Сергей</div>
+                            <div class="text-muted small">Группа: Собаки 🐕</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активен</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">52</div><div class="text-muted" style="font-size:.7rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">210</div><div class="text-muted" style="font-size:.7rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.9</div><div class="text-muted" style="font-size:.7rem">Рейтинг</div></div>
+                    </div>
+                    <div class="progress mb-2" style="height:6px">
+                        <div class="progress-bar bg-success" style="width:92%"></div>
+                    </div>
+                    <div class="text-muted small mb-3">Эффективность: 92%</div>
+                    <button class="btn btn-outline-secondary btn-sm w-100 rounded-pill" onclick="showPage('manager-analytics')">
+                        <i class="bi bi-graph-up me-1"></i>Аналитика
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="avatar-sm" style="width:52px;height:52px;border-radius:14px;background:#dc3545;font-size:1.2rem">НМ</div>
+                        <div>
+                            <div class="fw-bold">Николаева Мария</div>
+                            <div class="text-muted small">Группа: Выезды 🚗</div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success ms-auto">Активна</span>
+                    </div>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-4"><div class="fw-bold">18</div><div class="text-muted" style="font-size:.7rem">Волонтёров</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">67</div><div class="text-muted" style="font-size:.7rem">Задач</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">4.5</div><div class="text-muted" style="font-size:.7rem">Рейтинг</div></div>
+                    </div>
+                    <div class="progress mb-2" style="height:6px">
+                        <div class="progress-bar bg-warning" style="width:65%"></div>
+                    </div>
+                    <div class="text-muted small mb-3">Эффективность: 65%</div>
+                    <button class="btn btn-outline-secondary btn-sm w-100 rounded-pill" onclick="showPage('manager-analytics')">
+                        <i class="bi bi-graph-up me-1"></i>Аналитика
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MANAGER ANALYTICS ===== -->
+    <div class="page" id="page-manager-analytics">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('managers')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Аналитика — Иванова Елена</h4>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-4 text-primary">38</div><div class="text-muted small">Волонтёров</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-4 text-success">142</div><div class="text-muted small">Задач выдано</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-4 text-warning">128</div><div class="text-muted small">Задач завершено</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-4" style="color:var(--admin-primary)">90%</div><div class="text-muted small">Выполнение</div></div></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Активность по месяцам</h6>
+                    <div class="bar-chart">
+                        <div class="bar-col"><div class="bar" style="height:50%"></div><div class="bar-label">Янв</div></div>
+                        <div class="bar-col"><div class="bar" style="height:65%"></div><div class="bar-label">Фев</div></div>
+                        <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">Мар</div></div>
+                        <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-label">Апр</div></div>
+                        <div class="bar-col"><div class="bar" style="height:70%"></div><div class="bar-label">Май</div></div>
+                        <div class="bar-col"><div class="bar" style="height:85%"></div><div class="bar-label">Июн</div></div>
+                        <div class="bar-col"><div class="bar" style="height:100%;opacity:1;background:#ffc107"></div><div class="bar-label">Ноя</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Распределение задач</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Выполнены</span><span class="fw-semibold">128</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-success" style="width:90%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>В работе</span><span class="fw-semibold">10</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-primary" style="width:7%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Просрочены</span><span class="fw-semibold">4</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-danger" style="width:3%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANALYTICS ===== -->
+    <div class="page" id="page-analytics">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Общая аналитика</h4>
+                <p class="text-muted mb-0 small">Данные за ноябрь 2024</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-download me-1"></i>Экспорт PDF</button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6"><div class="card stat-card p-4"><div class="d-flex justify-content-between mb-2"><span class="text-muted small">Активных волонтёров</span><i class="bi bi-people text-primary"></i></div><h3 class="fw-bold">198</h3><span class="badge bg-success-subtle text-success">↑ 8%</span></div></div>
+            <div class="col-xl-3 col-md-6"><div class="card stat-card p-4"><div class="d-flex justify-content-between mb-2"><span class="text-muted small">Задач за месяц</span><i class="bi bi-check2-circle text-success"></i></div><h3 class="fw-bold">134</h3><span class="badge bg-success-subtle text-success">↑ 15%</span></div></div>
+            <div class="col-xl-3 col-md-6"><div class="card stat-card p-4"><div class="d-flex justify-content-between mb-2"><span class="text-muted small">Отчётов одобрено</span><i class="bi bi-clipboard-check text-warning"></i></div><h3 class="fw-bold">121</h3><span class="badge bg-success-subtle text-success">↑ 12%</span></div></div>
+            <div class="col-xl-3 col-md-6"><div class="card stat-card p-4"><div class="d-flex justify-content-between mb-2"><span class="text-muted small">Животных пристроено</span><i class="bi bi-house-heart" style="color:var(--admin-primary)"></i></div><h3 class="fw-bold">18</h3><span class="badge bg-success-subtle text-success">↑ 5%</span></div></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-4">Динамика активности за год</h6>
+                    <div class="bar-chart" style="height:160px">
+                        <div class="bar-col"><div class="bar" style="height:35%"></div><div class="bar-label">Янв</div></div>
+                        <div class="bar-col"><div class="bar" style="height:48%"></div><div class="bar-label">Фев</div></div>
+                        <div class="bar-col"><div class="bar" style="height:42%"></div><div class="bar-label">Мар</div></div>
+                        <div class="bar-col"><div class="bar" style="height:65%"></div><div class="bar-label">Апр</div></div>
+                        <div class="bar-col"><div class="bar" style="height:58%"></div><div class="bar-label">Май</div></div>
+                        <div class="bar-col"><div class="bar" style="height:72%"></div><div class="bar-label">Июн</div></div>
+                        <div class="bar-col"><div class="bar" style="height:68%"></div><div class="bar-label">Июл</div></div>
+                        <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-label">Авг</div></div>
+                        <div class="bar-col"><div class="bar" style="height:75%"></div><div class="bar-label">Сен</div></div>
+                        <div class="bar-col"><div class="bar" style="height:88%"></div><div class="bar-label">Окт</div></div>
+                        <div class="bar-col"><div class="bar" style="height:100%;opacity:1;background:#ffc107"></div><div class="bar-label">Ноя</div></div>
+                        <div class="bar-col"><div class="bar" style="height:20%;background:#dee2e6"></div><div class="bar-label">Дек</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4 h-100">
+                    <h6 class="fw-bold mb-4">По группам</h6>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>🐕 Собаки</span><span class="fw-semibold">210</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-primary" style="width:100%"></div></div></div>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>🐱 Кошки</span><span class="fw-semibold">142</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-warning" style="width:68%"></div></div></div>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>🧹 Уборка</span><span class="fw-semibold">98</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-secondary" style="width:47%"></div></div></div>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>🚗 Выезды</span><span class="fw-semibold">67</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-info" style="width:32%"></div></div></div>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>📷 Фото/видео</span><span class="fw-semibold">44</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-danger" style="width:21%"></div></div></div>
+                    <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>🏥 Вет. помощь</span><span class="fw-semibold">29</span></div><div class="progress" style="height:8px"><div class="progress-bar bg-success" style="width:14%"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANALYTICS GROUPS ===== -->
+    <div class="page" id="page-analytics-groups">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Отчёт по группам</h4>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-download me-1"></i>Экспорт</button>
+        </div>
+        <div class="card content-card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Группа</th>
+                            <th>Менеджер</th>
+                            <th>Волонтёров</th>
+                            <th>Задач выдано</th>
+                            <th>Выполнено</th>
+                            <th>% выполн.</th>
+                            <th>Часов</th>
+                            <th>Рейтинг</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="ps-4">🐕 Собаки</td><td class="small">Петров С.В.</td><td>52</td><td>210</td><td>198</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-success" style="width:94%"></div></div><span class="small ms-1">94%</span></td><td>1240</td><td>⭐ 4.9</td></tr>
+                        <tr><td class="ps-4">🐱 Кошки</td><td class="small">Иванова Е.А.</td><td>38</td><td>142</td><td>128</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-warning" style="width:90%"></div></div><span class="small ms-1">90%</span></td><td>820</td><td>⭐ 4.7</td></tr>
+                        <tr><td class="ps-4">🧹 Уборка</td><td class="small">Козлов О.Д.</td><td>24</td><td>98</td><td>87</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-primary" style="width:89%"></div></div><span class="small ms-1">89%</span></td><td>540</td><td>⭐ 4.6</td></tr>
+                        <tr><td class="ps-4">🚗 Выезды</td><td class="small">Николаева М.Р.</td><td>18</td><td>67</td><td>55</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-warning" style="width:82%"></div></div><span class="small ms-1">82%</span></td><td>380</td><td>⭐ 4.5</td></tr>
+                        <tr><td class="ps-4">📷 Фото/видео</td><td class="small">Волков А.С.</td><td>12</td><td>44</td><td>42</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-success" style="width:95%"></div></div><span class="small ms-1">95%</span></td><td>240</td><td>⭐ 4.8</td></tr>
+                        <tr><td class="ps-4">🏥 Вет. помощь</td><td class="small text-muted">вакансия</td><td>8</td><td>29</td><td>22</td><td><div class="progress" style="height:6px;width:80px"><div class="progress-bar bg-danger" style="width:76%"></div></div><span class="small ms-1">76%</span></td><td>160</td><td>⭐ 4.9</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANALYTICS PERIOD ===== -->
+    <div class="page" id="page-analytics-period">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Отчёт по периоду</h4>
+        </div>
+        <div class="card content-card p-4 mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3"><label class="form-label small">Начало периода</label><input type="date" class="form-control" value="2024-11-01"></div>
+                <div class="col-md-3"><label class="form-label small">Конец периода</label><input type="date" class="form-control" value="2024-11-30"></div>
+                <div class="col-md-2"><label class="form-label small">Группа</label><select class="form-select"><option>Все группы</option><option>Кошки</option><option>Собаки</option></select></div>
+                <div class="col-md-2"><label class="form-label small">Метрика</label><select class="form-select"><option>Задачи</option><option>Часы</option><option>Отчёты</option></select></div>
+                <div class="col-md-2"><button class="btn w-100 rounded-pill text-white" style="background:var(--admin-primary)"><i class="bi bi-search me-1"></i>Показать</button></div>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-primary">134</div><div class="text-muted small">Задач за период</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-success">121</div><div class="text-muted small">Выполнено</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-warning">3380</div><div class="text-muted small">Волонтёрских часов</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3" style="color:var(--admin-primary)">18</div><div class="text-muted small">Животных пристроено</div></div></div>
+        </div>
+        <div class="card content-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="fw-bold mb-0">Динамика за период</h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+                    <button class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+                </div>
+            </div>
+            <div class="bar-chart">
+                <div class="bar-col"><div class="bar" style="height:60%"></div><div class="bar-label">1–5</div></div>
+                <div class="bar-col"><div class="bar" style="height:75%"></div><div class="bar-label">6–10</div></div>
+                <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-label">11–15</div></div>
+                <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-label">16–20</div></div>
+                <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-label">21–25</div></div>
+                <div class="bar-col"><div class="bar" style="height:100%;opacity:1;background:#ffc107"></div><div class="bar-label">26–30</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANIMALS ===== -->
+    <div class="page" id="page-animals">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Животные</h4>
+                <p class="text-muted mb-0 small">87 животных в приюте</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-download me-1"></i>Экспорт</button>
+                <button class="btn btn-warning text-white btn-sm rounded-pill" onclick="showPage('animals-new')">
+                    <i class="bi bi-plus-lg me-1"></i>Добавить животное
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card content-card p-3 mb-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3"><input type="text" class="form-control" placeholder="🔍 Поиск по кличке, ID..."></div>
+                <div class="col-md-2"><select class="form-select"><option>Все виды</option><option>Кошки</option><option>Собаки</option></select></div>
+                <div class="col-md-2"><select class="form-select"><option>Все статусы</option><option>В приюте</option><option>Пристроен</option><option>На лечении</option><option>На передержке</option></select></div>
+                <div class="col-md-2"><select class="form-select"><option>Любой возраст</option><option>До 1 года</option><option>1–3 года</option><option>3–7 лет</option><option>Старше 7</option></select></div>
+                <div class="col-md-1"><button class="btn btn-outline-secondary w-100 rounded-pill">✕</button></div>
+                <div class="col-md-2"><div class="btn-group w-100"><button class="btn btn-outline-secondary active"><i class="bi bi-grid-3x3-gap"></i></button><button class="btn btn-outline-secondary"><i class="bi bi-list-ul"></i></button></div></div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="animal-card card h-100">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400" class="card-img-top" alt="Мурка">
+                        <div class="position-absolute top-0 start-0 m-2"><span class="badge bg-warning text-dark">В приюте</span></div>
+                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                            <button class="btn btn-sm btn-light rounded-circle p-1" onclick="showPage('animal-detail')"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-light rounded-circle p-1"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">Мурка</h6>
+                            <small class="text-muted">#001</small>
+                        </div>
+                        <div class="text-muted small mb-2">🐱 Кошка · 2 года · Самка</div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-success-subtle text-success" style="font-size:.65rem">Вакцинирована</span>
+                            <span class="badge bg-info-subtle text-info" style="font-size:.65rem">Стерилизована</span>
+                        </div>
+                        <div class="text-muted" style="font-size:.72rem"><i class="bi bi-calendar3 me-1"></i>В приюте с 10.03.2024</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="animal-card card h-100">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" class="card-img-top" alt="Барон">
+                        <div class="position-absolute top-0 start-0 m-2"><span class="badge bg-primary">На лечении</span></div>
+                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                            <button class="btn btn-sm btn-light rounded-circle p-1" onclick="showPage('animal-detail')"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-light rounded-circle p-1"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">Барон</h6>
+                            <small class="text-muted">#002</small>
+                        </div>
+                        <div class="text-muted small mb-2">🐕 Собака · 4 года · Самец</div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-warning-subtle text-warning" style="font-size:.65rem">Вакцинирован</span>
+                            <span class="badge bg-danger-subtle text-danger" style="font-size:.65rem">Лечение</span>
+                        </div>
+                        <div class="text-muted" style="font-size:.72rem"><i class="bi bi-calendar3 me-1"></i>В приюте с 05.01.2024</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="animal-card card h-100">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400" class="card-img-top" alt="Барсик">
+                        <div class="position-absolute top-0 start-0 m-2"><span class="badge bg-success">Пристроен</span></div>
+                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                            <button class="btn btn-sm btn-light rounded-circle p-1" onclick="showPage('animal-detail')"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-light rounded-circle p-1"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">Барсик</h6>
+                            <small class="text-muted">#045</small>
+                        </div>
+                        <div class="text-muted small mb-2">🐱 Кот · 1 год · Самец</div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-success-subtle text-success" style="font-size:.65rem">Вакцинирован</span>
+                            <span class="badge bg-success-subtle text-success" style="font-size:.65rem">Кастрирован</span>
+                        </div>
+                        <div class="text-muted" style="font-size:.72rem"><i class="bi bi-house-heart me-1 text-success"></i>Пристроен 14.11.2024</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="animal-card card h-100">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400" class="card-img-top" alt="Рекс">
+                        <div class="position-absolute top-0 start-0 m-2"><span class="badge bg-info text-dark">На передержке</span></div>
+                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                            <button class="btn btn-sm btn-light rounded-circle p-1" onclick="showPage('animal-detail')"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-light rounded-circle p-1"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">Рекс</h6>
+                            <small class="text-muted">#078</small>
+                        </div>
+                        <div class="text-muted small mb-2">🐕 Собака · 6 лет · Самец</div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">Чипирован</span>
+                            <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">Передержка</span>
+                        </div>
+                        <div class="text-muted" style="font-size:.72rem"><i class="bi bi-calendar3 me-1"></i>В приюте с 20.09.2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <span class="text-muted small">Показано 1–20 из 87</span>
+            <nav><ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled"><a class="page-link" href="#">‹</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">›</a></li>
+            </ul></nav>
+        </div>
+    </div>
+
+    <!-- ===== ANIMAL DETAIL ===== -->
+    <div class="page" id="page-animal-detail">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('animals')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Мурка · #001</h4>
+            <span class="badge bg-warning text-dark">В приюте</span>
+            <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-pencil me-1"></i>Редактировать</button>
+                <button class="btn btn-success btn-sm rounded-pill" onclick="showToast('Статус обновлён', 'success')">
+                    <i class="bi bi-house-heart me-1"></i>Пристроить
+                </button>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card content-card overflow-hidden mb-4">
+                    <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500" alt="Мурка" class="img-fluid">
+                    <div class="p-4">
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge bg-success-subtle text-success">Вакцинирована</span>
+                            <span class="badge bg-info-subtle text-info">Стерилизована</span>
+                            <span class="badge bg-primary-subtle text-primary">Чипирована</span>
+                        </div>
+                        <div class="mb-2"><span class="text-muted small">Статус</span><div><span class="badge bg-warning text-dark">В приюте</span></div></div>
+                        <div class="mb-2"><span class="text-muted small">В приюте с</span><div class="small fw-semibold">10.03.2024</div></div>
+                        <div class="mb-2"><span class="text-muted small">Куратор</span><div class="small fw-semibold">Иванова Е.А.</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Основная информация</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="text-muted small">Кличка</label><div class="fw-semibold">Мурка</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Вид</label><div class="fw-semibold">Кошка 🐱</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Порода</label><div class="fw-semibold">Беспородная</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Возраст</label><div class="fw-semibold">~2 года</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Пол</label><div class="fw-semibold">Самка</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Окрас</label><div class="fw-semibold">Трёхцветный</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Вес</label><div class="fw-semibold">3.2 кг</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Микрочип</label><div class="fw-semibold">643093400012345</div></div>
+                        <div class="col-md-4"><label class="text-muted small">Группа</label><div class="fw-semibold">Кошки 🐱</div></div>
+                        <div class="col-12"><label class="text-muted small">Описание</label><div class="small text-muted">Очень ласковая и спокойная кошка. Хорошо ладит с другими животными. Любит сидеть на коленях и мурлыкать. Идеально подойдёт для семьи с детьми.</div></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Медицинская карта</h6>
+                    <table class="table table-sm">
+                        <thead><tr><th>Процедура</th><th>Дата</th><th>Ветеринар</th><th>Статус</th></tr></thead>
+                        <tbody>
+                            <tr><td class="small">Вакцинация</td><td class="small">15.03.2024</td><td class="small">Волков В.В.</td><td><span class="badge bg-success-subtle text-success">Выполнено</span></td></tr>
+                            <tr><td class="small">Стерилизация</td><td class="small">01.04.2024</td><td class="small">Волков В.В.</td><td><span class="badge bg-success-subtle text-success">Выполнено</span></td></tr>
+                            <tr><td class="small">Обработка от паразитов</td><td class="small">10.11.2024</td><td class="small">Петрова Л.С.</td><td><span class="badge bg-success-subtle text-success">Выполнено</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Фотогалерея</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=120" alt="" class="rounded-3" style="width:90px;height:70px;object-fit:cover">
+                        <img src="https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=120" alt="" class="rounded-3" style="width:90px;height:70px;object-fit:cover">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center border-2 border-dashed" style="width:90px;height:70px;border:2px dashed #dee2e6;cursor:pointer;color:#6c757d">
+                            <i class="bi bi-plus-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANIMALS NEW ===== -->
+    <div class="page" id="page-animals-new">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('animals')"><i class="bi bi-arrow-left me-1"></i>Назад</button>
+            <h4 class="fw-bold mb-0">Добавить животное</h4>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Основная информация</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label small">Кличка *</label><input class="form-control" placeholder="Имя животного"></div>
+                        <div class="col-md-6"><label class="form-label small">Вид *</label><select class="form-select"><option>Выберите...</option><option>Кошка</option><option>Собака</option><option>Другое</option></select></div>
+                        <div class="col-md-6"><label class="form-label small">Порода</label><input class="form-control" placeholder="Порода или «беспородная»"></div>
+                        <div class="col-md-3"><label class="form-label small">Пол *</label><select class="form-select"><option>Выберите...</option><option>Самец</option><option>Самка</option></select></div>
+                        <div class="col-md-3"><label class="form-label small">Возраст</label><input class="form-control" placeholder="напр. 2 года"></div>
+                        <div class="col-md-4"><label class="form-label small">Вес (кг)</label><input class="form-control" type="number" placeholder="3.5"></div>
+                        <div class="col-md-4"><label class="form-label small">Окрас</label><input class="form-control" placeholder="Серый, рыжий..."></div>
+                        <div class="col-md-4"><label class="form-label small">Номер микрочипа</label><input class="form-control" placeholder="15-значный номер"></div>
+                        <div class="col-12"><label class="form-label small">Описание</label><textarea class="form-control" rows="4" placeholder="Характер, особенности, история..."></textarea></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Медицинский статус</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="vaccinated"><label class="form-check-label small" for="vaccinated">Вакцинирована</label></div>
+                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="sterilized"><label class="form-check-label small" for="sterilized">Стерилизована / Кастрирован</label></div>
+                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="chipped"><label class="form-check-label small" for="chipped">Чипирована</label></div>
+                            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="treatment"><label class="form-check-label small" for="treatment">На лечении</label></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Комментарий по здоровью</label>
+                            <textarea class="form-control" rows="4" placeholder="Диагноз, назначения..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Фотографии</h6>
+                    <div class="border border-dashed rounded-3 p-5 text-center" style="border-color:#dee2e6 !important; cursor:pointer">
+                        <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                        <div class="text-muted mt-2 small">Перетащите фото или нажмите для выбора</div>
+                        <div class="text-muted" style="font-size:.72rem">JPG, PNG · до 10MB каждое</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning text-white rounded-pill px-4" onclick="showToast('Животное добавлено в систему!', 'success'); showPage('animals')">
+                        <i class="bi bi-check2 me-1"></i>Сохранить
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill" onclick="showPage('animals')">Отмена</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Расположение и группа</h6>
+                    <div class="mb-3"><label class="form-label small">Статус</label><select class="form-select"><option>В приюте</option><option>На лечении</option><option>На передержке</option><option>Пристроен</option></select></div>
+                    <div class="mb-3"><label class="form-label small">Группа ухода</label><select class="form-select"><option>Кошки 🐱</option><option>Собаки 🐕</option><option>Вет. помощь 🏥</option></select></div>
+                    <div class="mb-3"><label class="form-label small">Вольер / место</label><input class="form-control" placeholder="напр. Блок A, клетка 5"></div>
+                    <div class="mb-3"><label class="form-label small">Дата поступления</label><input class="form-control" type="date"></div>
+                    <div><label class="form-label small">Куратор-менеджер</label><select class="form-select"><option>Иванова Е.А.</option><option>Петров С.В.</option></select></div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Теги и характер</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success-subtle text-success p-2" style="cursor:pointer">Дружелюбный</span>
+                        <span class="badge bg-primary-subtle text-primary p-2" style="cursor:pointer">Игривый</span>
+                        <span class="badge bg-warning-subtle text-warning p-2" style="cursor:pointer">Ласковый</span>
+                        <span class="badge bg-info-subtle text-info p-2" style="cursor:pointer">Спокойный</span>
+                        <span class="badge bg-danger-subtle text-danger p-2" style="cursor:pointer">Активный</span>
+                        <span class="badge bg-secondary-subtle text-secondary p-2" style="cursor:pointer">Умный</span>
+                        <span class="badge bg-success-subtle text-success p-2" style="cursor:pointer">С детьми ✓</span>
+                        <span class="badge bg-primary-subtle text-primary p-2" style="cursor:pointer">С животными ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ANIMALS CATEGORIES ===== -->
+    <div class="page" id="page-animals-categories">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Категории и теги животных</h4>
+            <button class="btn btn-warning text-white btn-sm rounded-pill" onclick="showToast('Добавление категории', 'primary')">
+                <i class="bi bi-plus-lg me-1"></i>Создать категорию
+            </button>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Виды животных</h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><i class="bi bi-cat me-2 text-warning"></i><span class="fw-semibold">Кошки</span> <span class="badge bg-secondary ms-1">54</span></div>
+                            <div class="d-flex gap-1"><button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-trash"></i></button></div>
+                        </div>
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><i class="bi bi-browser-edge me-2 text-primary"></i><span class="fw-semibold">Собаки</span> <span class="badge bg-secondary ms-1">33</span></div>
+                            <div class="d-flex gap-1"><button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-trash"></i></button></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Статусы</h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><span class="badge bg-warning text-dark me-2">В приюте</span> <span class="text-muted small">58 животных</span></div>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button>
+                        </div>
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><span class="badge bg-primary me-2">На лечении</span> <span class="text-muted small">12 животных</span></div>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button>
+                        </div>
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><span class="badge bg-info text-dark me-2">На передержке</span> <span class="text-muted small">8 животных</span></div>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button>
+                        </div>
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div><span class="badge bg-success me-2">Пристроен</span> <span class="text-muted small">523 всего</span></div>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card content-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Теги характера</h6>
+                        <button class="btn btn-sm rounded-pill text-white" style="background:var(--admin-primary)" onclick="showToast('Тег добавлен', 'success')"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success-subtle text-success p-2" style="font-size:.8rem">Дружелюбный <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-primary-subtle text-primary p-2" style="font-size:.8rem">Игривый <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-warning-subtle text-warning p-2" style="font-size:.8rem">Ласковый <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-info-subtle text-info p-2" style="font-size:.8rem">Спокойный <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-danger-subtle text-danger p-2" style="font-size:.8rem">Активный <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-secondary-subtle text-secondary p-2" style="font-size:.8rem">Умный <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-success-subtle text-success p-2" style="font-size:.8rem">С детьми ✓ <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-primary-subtle text-primary p-2" style="font-size:.8rem">С животными ✓ <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-danger-subtle text-danger p-2" style="font-size:.8rem">Только один <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                        <span class="badge bg-warning-subtle text-warning p-2" style="font-size:.8rem">Верный <button class="btn-close btn-close-white ms-1" style="filter:invert(.5);font-size:.5rem"></button></span>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <input class="form-control form-control-sm" placeholder="Новый тег...">
+                        <button class="btn btn-sm btn-warning text-white rounded-pill px-3">Добавить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DB OVERVIEW ===== -->
+    <div class="page" id="page-db-overview">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Обзор базы данных</h4>
+            <div class="d-flex gap-2">
+                <span class="badge bg-success-subtle text-success p-2"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>PostgreSQL · Подключено</span>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showToast('Данные обновлены', 'primary')"><i class="bi bi-arrow-clockwise me-1"></i>Обновить</button>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3" style="color:var(--admin-primary)">18</div><div class="text-muted small">Таблиц</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-primary">4.2 GB</div><div class="text-muted small">Размер БД</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-success">99.9%</div><div class="text-muted small">Uptime</div></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3 text-center"><div class="fw-bold fs-3 text-warning">12 мс</div><div class="text-muted small">Avg Query Time</div></div></div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Статистика таблиц</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead><tr><th>Таблица</th><th>Записей</th><th>Размер</th><th>Последнее обновление</th></tr></thead>
+                            <tbody>
+                                <tr><td><i class="bi bi-table me-2 text-primary"></i><code>users</code></td><td>248</td><td>1.2 MB</td><td class="text-muted small">Сегодня, 09:45</td></tr>
+                                <tr><td><i class="bi bi-table me-2 text-success"></i><code>tasks</code></td><td>1 480</td><td>8.4 MB</td><td class="text-muted small">Сегодня, 10:12</td></tr>
+                                <tr><td><i class="bi bi-table me-2 text-warning"></i><code>reports</code></td><td>3 240</td><td>124 MB</td><td class="text-muted small">Сегодня, 11:00</td></tr>
+                                <tr><td><i class="bi bi-table me-2 text-danger"></i><code>animals</code></td><td>610</td><td>340 MB</td><td class="text-muted small">Вчера, 18:30</td></tr>
+                                <tr><td><i class="bi bi-table me-2" style="color:var(--admin-primary)"></i><code>groups</code></td><td>6</td><td>48 KB</td><td class="text-muted small">10.11.2024</td></tr>
+                                <tr><td><i class="bi bi-table me-2 text-info"></i><code>applications</code></td><td>67</td><td>2.1 MB</td><td class="text-muted small">Сегодня, 08:22</td></tr>
+                                <tr><td><i class="bi bi-table me-2 text-secondary"></i><code>notifications</code></td><td>12 450</td><td>18 MB</td><td class="text-muted small">Сегодня, 11:05</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill mt-2" onclick="showPage('db-tables')">Все таблицы →</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Информация о сервере</h6>
+                    <div class="mb-2"><span class="text-muted small">СУБД</span><div class="small fw-semibold">PostgreSQL 16.1</div></div>
+                    <div class="mb-2"><span class="text-muted small">Хост</span><div class="small fw-semibold">db.dobrie-lapki.ru:5432</div></div>
+                    <div class="mb-2"><span class="text-muted small">База данных</span><div class="small fw-semibold">shelter_prod</div></div>
+                    <div class="mb-2"><span class="text-muted small">Кодировка</span><div class="small fw-semibold">UTF-8</div></div>
+                    <div class="mb-2"><span class="text-muted small">Последний бэкап</span><div class="small fw-semibold text-success">Сегодня, 06:00 ✓</div></div>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="showPage('db-backup')"><i class="bi bi-cloud-download me-1"></i>Создать резервную копию</button>
+                    </div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Использование диска</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Данные</span><span>3.1 GB</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-primary" style="width:74%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Индексы</span><span>0.7 GB</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-success" style="width:17%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Логи</span><span>0.4 GB</span></div>
+                        <div class="progress" style="height:8px"><div class="progress-bar bg-warning" style="width:10%"></div></div>
+                    </div>
+                    <div class="text-muted small">Доступно: 15.8 GB из 20 GB</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DB TABLES ===== -->
+    <div class="page" id="page-db-tables">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Таблицы базы данных</h4>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" placeholder="🔍 Поиск таблицы..." style="width:200px">
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-primary fs-5"></i>
+                        <code class="fw-bold">users</code>
+                    </div>
+                    <div class="text-muted small mb-1">248 записей · 1.2 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">name</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">email</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+12</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-success fs-5"></i>
+                        <code class="fw-bold">tasks</code>
+                    </div>
+                    <div class="text-muted small mb-1">1 480 записей · 8.4 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">title</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">status</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-warning fs-5"></i>
+                        <code class="fw-bold">reports</code>
+                    </div>
+                    <div class="text-muted small mb-1">3 240 записей · 124 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">task_id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">text</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+6</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-danger fs-5"></i>
+                        <code class="fw-bold">animals</code>
+                    </div>
+                    <div class="text-muted small mb-1">610 записей · 340 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">name</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">species</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+14</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table fs-5" style="color:var(--admin-primary)"></i>
+                        <code class="fw-bold">groups</code>
+                    </div>
+                    <div class="text-muted small mb-1">6 записей · 48 KB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">name</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">manager_id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-info fs-5"></i>
+                        <code class="fw-bold">applications</code>
+                    </div>
+                    <div class="text-muted small mb-1">67 записей · 2.1 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">user_id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">status</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-secondary fs-5"></i>
+                        <code class="fw-bold">notifications</code>
+                    </div>
+                    <div class="text-muted small mb-1">12 450 записей · 18 MB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">user_id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">type</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="db-table-card card p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-table text-warning fs-5"></i>
+                        <code class="fw-bold">animal_photos</code>
+                    </div>
+                    <div class="text-muted small mb-1">2 840 записей · 3.6 GB</div>
+                    <div class="d-flex gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary" style="font-size:.65rem">id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">animal_id</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">url</span>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:.65rem">+3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DB LOGS ===== -->
+    <div class="page" id="page-db-logs">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Логи изменений</h4>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-download me-1"></i>Экспорт</button>
+                <button class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-trash me-1"></i>Очистить старые</button>
+            </div>
+        </div>
+        <div class="card content-card p-3 mb-4">
+            <div class="row g-2">
+                <div class="col-md-3"><input type="text" class="form-control" placeholder="🔍 Поиск..."></div>
+                <div class="col-md-2"><select class="form-select"><option>Все таблицы</option><option>users</option><option>tasks</option><option>animals</option></select></div>
+                <div class="col-md-2"><select class="form-select"><option>Все действия</option><option>INSERT</option><option>UPDATE</option><option>DELETE</option></select></div>
+                <div class="col-md-2"><input type="date" class="form-control"></div>
+                <div class="col-md-2"><input type="date" class="form-control"></div>
+                <div class="col-md-1"><button class="btn btn-outline-secondary w-100 rounded-pill">✕</button></div>
+            </div>
+        </div>
+        <div class="card content-card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Время</th>
+                            <th>Пользователь</th>
+                            <th>Действие</th>
+                            <th>Таблица</th>
+                            <th>ID записи</th>
+                            <th>Изменения</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-3 text-muted small">15.11 09:45</td>
+                            <td><span class="badge badge-role-admin">admin</span></td>
+                            <td><span class="badge bg-success-subtle text-success">INSERT</span></td>
+                            <td><code>users</code></td><td class="small">#248</td>
+                            <td class="small text-muted">name="Анна Смирнова", role="volunteer"</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3 text-muted small">15.11 09:30</td>
+                            <td><span class="badge badge-role-manager">manager</span></td>
+                            <td><span class="badge bg-primary-subtle text-primary">UPDATE</span></td>
+                            <td><code>tasks</code></td><td class="small">#1480</td>
+                            <td class="small text-muted">status: "pending" → "assigned"</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3 text-muted small">14.11 18:30</td>
+                            <td><span class="badge badge-role-admin">admin</span></td>
+                            <td><span class="badge bg-primary-subtle text-primary">UPDATE</span></td>
+                            <td><code>animals</code></td><td class="small">#45</td>
+                            <td class="small text-muted">status: "shelter" → "adopted"</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3 text-muted small">14.11 16:00</td>
+                            <td><span class="badge badge-role-volunteer">volunteer</span></td>
+                            <td><span class="badge bg-success-subtle text-success">INSERT</span></td>
+                            <td><code>reports</code></td><td class="small">#3240</td>
+                            <td class="small text-muted">task_id=1479, status="submitted"</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3 text-muted small">13.11 11:00</td>
+                            <td><span class="badge badge-role-admin">admin</span></td>
+                            <td><span class="badge bg-danger-subtle text-danger">DELETE</span></td>
+                            <td><code>users</code></td><td class="small">#112</td>
+                            <td class="small text-muted">Удалён заблокированный аккаунт</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center px-3 py-2">
+                <span class="text-muted small">12 450 записей в логе</span>
+                <nav><ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">‹</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">›</a></li>
+                </ul></nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DB BACKUP ===== -->
+    <div class="page" id="page-db-backup">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Резервные копии</h4>
+            <button class="btn rounded-pill text-white" style="background:var(--admin-primary)" onclick="showToast('Создание резервной копии запущено...', 'primary')">
+                <i class="bi bi-cloud-download me-1"></i>Создать резервную копию
+            </button>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card content-card p-4 text-center">
+                    <i class="bi bi-cloud-check fs-1 text-success mb-2"></i>
+                    <h6 class="fw-bold">Последний бэкап</h6>
+                    <div class="fw-bold text-success">Сегодня, 06:00</div>
+                    <div class="text-muted small">Автоматический · 4.1 GB</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card content-card p-4 text-center">
+                    <i class="bi bi-calendar-check fs-1 text-primary mb-2"></i>
+                    <h6 class="fw-bold">Расписание</h6>
+                    <div class="fw-bold text-primary">Ежедневно в 06:00</div>
+                    <div class="text-muted small">Хранится 30 дней</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card content-card p-4 text-center">
+                    <i class="bi bi-hdd-stack fs-1 text-warning mb-2"></i>
+                    <h6 class="fw-bold">Хранилище</h6>
+                    <div class="fw-bold text-warning">124 GB использовано</div>
+                    <div class="text-muted small">из 500 GB доступных</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card content-card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Файл</th>
+                            <th>Тип</th>
+                            <th>Размер</th>
+                            <th>Создан</th>
+                            <th>Статус</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4"><code>backup_20241115_060000.sql.gz</code></td>
+                            <td><span class="badge bg-success-subtle text-success">Автоматический</span></td>
+                            <td>4.1 GB</td>
+                            <td class="text-muted small">15.11.2024 06:00</td>
+                            <td><span class="badge bg-success-subtle text-success">Готов</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="showToast('Скачивание...', 'primary')"><i class="bi bi-download"></i></button>
+                                    <button class="btn btn-sm btn-outline-success rounded-pill" onclick="showToast('Восстановление запущено', 'success')"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4"><code>backup_20241114_060000.sql.gz</code></td>
+                            <td><span class="badge bg-success-subtle text-success">Автоматический</span></td>
+                            <td>4.0 GB</td>
+                            <td class="text-muted small">14.11.2024 06:00</td>
+                            <td><span class="badge bg-success-subtle text-success">Готов</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-download"></i></button>
+                                    <button class="btn btn-sm btn-outline-success rounded-pill"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4"><code>manual_backup_20241110_153022.sql.gz</code></td>
+                            <td><span class="badge bg-primary-subtle text-primary">Ручной</span></td>
+                            <td>3.8 GB</td>
+                            <td class="text-muted small">10.11.2024 15:30</td>
+                            <td><span class="badge bg-success-subtle text-success">Готов</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-download"></i></button>
+                                    <button class="btn btn-sm btn-outline-success rounded-pill"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE ===== -->
+    <div class="page" id="page-profile">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Мой профиль</h4>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card content-card p-4 text-center mb-4">
+                    <div class="avatar-sm mx-auto mb-3" style="width:90px;height:90px;border-radius:20px;font-size:2.5rem;background:var(--admin-primary)">АД</div>
+                    <h5 class="fw-bold">Алексей Дмитриев</h5>
+                    <p class="text-muted small mb-2">admin@dobrie-lapki.ru</p>
+                    <span class="badge badge-role-admin mb-3">Администратор</span>
+                    <div class="text-muted small">В системе с 12 января 2020</div>
+                    <hr>
+                    <div class="row text-center g-2">
+                        <div class="col-4"><div class="fw-bold" style="color:var(--admin-primary)">248</div><div class="text-muted" style="font-size:.72rem">Польз.</div></div>
+                        <div class="col-4"><div class="fw-bold text-warning">6</div><div class="text-muted" style="font-size:.72rem">Групп</div></div>
+                        <div class="col-4"><div class="fw-bold text-success">4 лет</div><div class="text-muted" style="font-size:.72rem">Стаж</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Личные данные</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label small">Имя</label><input class="form-control" value="Алексей"></div>
+                        <div class="col-md-6"><label class="form-label small">Фамилия</label><input class="form-control" value="Дмитриев"></div>
+                        <div class="col-md-6"><label class="form-label small">Email</label><input class="form-control" type="email" value="admin@dobrie-lapki.ru"></div>
+                        <div class="col-md-6"><label class="form-label small">Телефон</label><input class="form-control" value="+7 (999) 000-00-01"></div>
+                        <div class="col-12">
+                            <button class="btn btn-warning text-white rounded-pill px-4" onclick="showToast('Профиль обновлён', 'success')">
+                                <i class="bi bi-check2 me-1"></i>Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-4">Смена пароля</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="form-label small">Текущий пароль</label><input class="form-control" type="password" placeholder="••••••••"></div>
+                        <div class="col-md-4"><label class="form-label small">Новый пароль</label><input class="form-control" type="password" placeholder="••••••••"></div>
+                        <div class="col-md-4"><label class="form-label small">Подтверждение</label><input class="form-control" type="password" placeholder="••••••••"></div>
+                        <div class="col-12"><button class="btn btn-outline-secondary rounded-pill px-4" onclick="showToast('Пароль изменён', 'success')">Изменить пароль</button></div>
+                    </div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Двухфакторная аутентификация</h6>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="fw-semibold small">2FA через приложение</div>
+                            <div class="text-muted small">Google Authenticator / Yandex.Key</div>
+                        </div>
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="page" id="page-settings">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-bold mb-0">Настройки системы</h4>
+            <button class="btn btn-warning text-white rounded-pill px-4" onclick="showToast('Настройки сохранены', 'success')">
+                <i class="bi bi-check2 me-1"></i>Сохранить всё
+            </button>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Основные настройки</h6>
+                    <div class="mb-3"><label class="form-label small">Название организации</label><input class="form-control" value="Приют «Добрые Лапки»"></div>
+                    <div class="mb-3"><label class="form-label small">Email организации</label><input class="form-control" value="info@dobrie-lapki.ru"></div>
+                    <div class="mb-3"><label class="form-label small">Телефон</label><input class="form-control" value="+7 (999) 123-45-67"></div>
+                    <div class="mb-3"><label class="form-label small">Адрес</label><input class="form-control" value="г. Москва, ул. Лесная, д. 42"></div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Уведомления</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><div class="fw-semibold small">Email уведомления</div><div class="text-muted" style="font-size:.75rem">Отправлять важные уведомления на email</div></div>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><div class="fw-semibold small">Новые заявки</div><div class="text-muted" style="font-size:.75rem">Уведомление при новой заявке</div></div>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><div class="fw-semibold small">Ошибки системы</div><div class="text-muted" style="font-size:.75rem">Критические ошибки и сбои</div></div>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card content-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3">Регистрация волонтёров</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><div class="fw-semibold small">Открытая регистрация</div><div class="text-muted" style="font-size:.75rem">Разрешить подачу заявок</div></div>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div><div class="fw-semibold small">Ручное одобрение</div><div class="text-muted" style="font-size:.75rem">Каждая заявка проходит модерацию</div></div>
+                        <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked style="width:2.5rem;height:1.25rem"></div>
+                    </div>
+                    <div class="mb-3"><label class="form-label small">Приветственное письмо</label><textarea class="form-control" rows="3">Добро пожаловать в команду «Добрых Лапок»!</textarea></div>
+                </div>
+                <div class="card content-card p-4">
+                    <h6 class="fw-bold mb-3">Резервное копирование</h6>
+                    <div class="mb-3"><label class="form-label small">Расписание автобэкапа</label><select class="form-select"><option selected>Ежедневно в 06:00</option><option>Каждые 12 часов</option><option>Еженедельно</option></select></div>
+                    <div class="mb-3"><label class="form-label small">Хранить копии (дней)</label><input class="form-control" type="number" value="30"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="mainToast" class="toast align-items-center border-0 text-white" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastBody">Действие выполнено</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Set today date
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'});
+
+    const breadcrumbMap = {
+        'dashboard': 'Дашборд',
+        'applications': 'Заявки волонтёров',
+        'application-detail': 'Детали заявки',
+        'users': 'Все пользователи',
+        'user-detail': 'Профиль пользователя',
+        'user-edit': 'Редактирование пользователя',
+        'groups': 'Группы волонтёров',
+        'group-detail': 'Детали группы',
+        'managers': 'Менеджеры',
+        'manager-analytics': 'Аналитика менеджера',
+        'analytics': 'Общая аналитика',
+        'analytics-groups': 'Отчёт по группам',
+        'analytics-period': 'Отчёт по периоду',
+        'animals': 'Животные',
+        'animal-detail': 'Карточка животного',
+        'animals-new': 'Добавить животное',
+        'animals-categories': 'Категории и теги',
+        'db-overview': 'Обзор БД',
+        'db-tables': 'Таблицы',
+        'db-logs': 'Логи изменений',
+        'db-backup': 'Резервные копии',
+        'profile': 'Мой профиль',
+        'settings': 'Настройки системы',
+    };
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById('page-' + pageId);
+        if (target) {
+            target.classList.add('active');
+            document.getElementById('breadcrumb-current').textContent = breadcrumbMap[pageId] || pageId;
+        }
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const map = {
+            'dashboard': 0, 'applications': 1, 'users': 2, 'managers': 3,
+            'groups': 4, 'analytics': 5, 'analytics-groups': 6, 'analytics-period': 7,
+            'animals': 8, 'animals-new': 9, 'animals-categories': 10,
+            'db-overview': 11, 'db-tables': 12, 'db-logs': 13, 'db-backup': 14,
+            'profile': 15, 'settings': 16,
+        };
+        const links = document.querySelectorAll('.sidebar-link');
+        if (map[pageId] !== undefined && links[map[pageId]]) {
+            links[map[pageId]].classList.add('active');
+        }
+        closeSidebar();
+        window.scrollTo(0, 0);
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('mainToast');
+        const body = document.getElementById('toastBody');
+        body.textContent = msg;
+        const colors = { success: '#198754', danger: '#dc3545', warning: '#ffc107', primary: '#6f42c1', info: '#0dcaf0' };
+        toast.style.background = colors[type] || '#198754';
+        new bootstrap.Toast(toast, { delay: 3000 }).show();
+    }
+
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+</script>
+</body>
+</html>
