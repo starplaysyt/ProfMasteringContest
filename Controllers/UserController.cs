@@ -24,6 +24,11 @@ public class UserController (UserService service) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterPost([FromForm] UserRegistrationDTO dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         await service.ValidateUserRegistration(dto);
 
         if (await service.RegisterUser(dto) != 1) 
