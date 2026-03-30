@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using ProfMasteringProject.DTO;
 using ProfMasteringProject.Entities;
 using ProfMasteringProject.Repositories;
@@ -10,7 +11,7 @@ public class UserService(UserEntityRepository userRepository,
     public async Task<int> RegisterUser(UserRegistrationDTO userDto)
     {
         var filePath = await fileService.SaveFileAsync(userDto.AvatarPicture, "Images");
-
+        
         var userEntity = new UserEntity
         {
             Username = userDto.Username,
@@ -28,6 +29,8 @@ public class UserService(UserEntityRepository userRepository,
             LastLoginAt = default
         };
 
+        userEntity.PasswordHash = userDto.Password.GetHashCode().ToString();
+
         await userRepository.AddUserEntity(userEntity);
 
         return 1;
@@ -37,6 +40,19 @@ public class UserService(UserEntityRepository userRepository,
     {
         return 1;
     }
+
+    public async Task<UserEntity?> LoginUser(UserLoginDTO userDto)
+    {
+        var user = await userRepository.GetUserEntityByUsername(userDto.Username);
+        
+        if (user is null) return null;
+        
+        var passwordHash = userDto.Password.GetHashCode().ToString();
+        
+        Console.WriteLine($"DTO PASS: {user.PasswordHash} - INTERNAL: {passwordHash}");
+        
+        return passwordHash != user.PasswordHash ? null : user;
+    }
     
     public async Task<bool> CheckUser(string username, string passwordHash)
     {
@@ -45,5 +61,10 @@ public class UserService(UserEntityRepository userRepository,
         if (user is null) return false;
         
         return user.PasswordHash == passwordHash;
+    }
+
+    public async Task UpdateEntityLoginTime(UserEntity userEntity, DateTime time)
+    {
+        await userRepository.UpdateUserLoginTime(userEntity, time);
     }
 }

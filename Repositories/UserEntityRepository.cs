@@ -21,4 +21,11 @@ public class UserEntityRepository(AppDbContext context)
     {
         return context.Users.Where(predicate).ToList();
     }
+
+    public async Task UpdateUserLoginTime(UserEntity userEntity, DateTime time)
+    {
+        var entityEntry = context.Users.Update(userEntity);
+        entityEntry.Entity.UpdatedAt = time;
+        await context.SaveChangesAsync();
+    }
 }

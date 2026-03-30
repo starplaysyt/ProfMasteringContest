@@ -2,6 +2,30 @@
     ViewData["Title"] = "Вход";
 }
 
+@model ProfMasteringProject.PageModels.LoginPageModel?
+
+@if (Model?.ExceptionLine != null)
+{
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Ошибка
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Model.ExceptionLine</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <section class="py-5">
     <div class="container py-5">
         <div class="row justify-content-center align-items-center g-5">
@@ -40,8 +64,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Right Side - Login Form -->
+            
             <div class="col-lg-5 col-md-8">
                 <div class="card border-0 shadow-lg rounded-4">
                     <div class="card-body p-4 p-md-5">
@@ -54,54 +77,49 @@
                             <h3 class="fw-bold">Добро пожаловать!</h3>
                             <p class="text-muted">Войдите в личный кабинет</p>
                         </div>
-
-                        <!-- Login Form -->
-                        <form>
+                        
+                        <form asp-controller="User" asp-action="LoginPost" method="post">
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label fw-semibold">
-                                    <i class="bi bi-envelope text-warning me-1"></i>Email
+                                <label for="login" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope text-warning me-1"></i>Логин
                                 </label>
-                                <input type="email" class="form-control form-control-lg rounded-3" id="email" placeholder="name@example.com">
+                                <input type="text" class="form-control form-control-lg rounded-3" id="login" name="Username" placeholder="Login">
                             </div>
-
-                            <!-- Password -->
+                            
                             <div class="mb-3">
                                 <label for="password" class="form-label fw-semibold">
                                     <i class="bi bi-lock text-warning me-1"></i>Пароль
                                 </label>
                                 <div class="input-group">
-                                    <input type="password" class="form-control form-control-lg rounded-start-3" id="password" placeholder="Введите пароль">
+                                    <input type="password" class="form-control form-control-lg rounded-start-3" id="password" name="Password" placeholder="Введите пароль">
                                     <button class="btn btn-outline-secondary rounded-end-3" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Remember & Forgot -->
+                            
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember" style="border-color: #ffc107;">
+                                    <input type="hidden" name="RememberMe" value="false" />
+                                    <input class="form-check-input" type="checkbox" id="remember" name="RememberMe" value="true" style="border-color: #ffc107;">
                                     <label class="form-check-label text-muted" for="remember">
                                         Запомнить меня
                                     </label>
                                 </div>
                                 <a href="#" class="text-warning text-decoration-none">Забыли пароль?</a>
                             </div>
-
-                            <!-- Submit Button -->
+                            
                             <button type="submit" class="btn btn-warning btn-lg w-100 text-white rounded-pill mb-3">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Войти
                             </button>
-
-                            <!-- Divider -->
+                            
                             <div class="d-flex align-items-center my-4">
                                 <hr class="flex-grow-1">
                                 <span class="px-3 text-muted small">или войдите через</span>
                                 <hr class="flex-grow-1">
                             </div>
-
-                            <!-- Social Login -->
+                            
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-outline-secondary flex-grow-1 rounded-pill">
                                     <i class="bi bi-google text-danger me-2"></i>Google

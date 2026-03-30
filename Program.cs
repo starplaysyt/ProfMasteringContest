@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using ProfMasteringProject.Persistence;
@@ -27,6 +28,23 @@ builder.Services.AddScoped<UserEntityRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/error500";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+        options.Cookie = new CookieBuilder
+        {
+            Name = "MyApp.Auth",
+            HttpOnly = true,
+            SecurePolicy = CookieSecurePolicy.Always,
+            SameSite = SameSiteMode.Strict
+        };
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,13 +64,13 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapStaticAssets();
 
 app.UseStatusCodePagesWithReExecute("/error?error={0}");
 app.MapControllers().WithStaticAssets();
-
-
 
 app.Run();

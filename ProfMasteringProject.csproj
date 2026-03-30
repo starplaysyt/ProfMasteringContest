@@ -75,6 +75,7 @@
     <ItemGroup>
       <Folder Include="Endpoints\" />
       <Folder Include="Schemes\" />
+      <Folder Include="Storage\uploads\Images\" />
     </ItemGroup>
 
     <ItemGroup>
